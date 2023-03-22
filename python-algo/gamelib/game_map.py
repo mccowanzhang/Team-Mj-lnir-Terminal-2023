@@ -103,7 +103,7 @@ class GameMap:
 
         return bottom_half_check or top_half_check
 
-    def get_edge_locations(self, quadrant_description):
+    def get_edge_locations(self, quadrant_description: int):
         """Takes in an edge description and returns a list of locations.
         
         Args:
@@ -117,8 +117,28 @@ class GameMap:
             self.warn("Passed invalid quadrant_description '{}'. See the documentation for valid inputs for get_edge_locations.".format(quadrant_description))
             return
 
-        edges = self.get_edges()
-        return edges[quadrant_description]
+        edges = []
+        if quadrant_description == self.TOP_LEFT:
+            for num in range(0, self.HALF_ARENA):
+                x = self.HALF_ARENA + num
+                y = self.ARENA_SIZE - 1 - num
+                edges.append([int(x), int(y)])
+        elif quadrant_description == self.TOP_RIGHT:
+            for num in range(0, self.HALF_ARENA):
+                x = self.HALF_ARENA - 1 - num
+                y = self.ARENA_SIZE - 1 - num
+                edges.append([int(x), int(y)])
+        elif quadrant_description == self.BOTTOM_LEFT:
+            for num in range(0, self.HALF_ARENA):
+                x = self.HALF_ARENA - 1 - num
+                y = num
+                edges.append([int(x), int(y)])
+        else:
+            for num in range(0, self.HALF_ARENA):
+                x = self.HALF_ARENA + num
+                y = num
+                edges.append([int(x), int(y)])
+        return edges
 
     def get_edges(self):
         """Gets all of the edges and their edge locations
@@ -127,27 +147,7 @@ class GameMap:
             A list with four lists inside of it of locations corresponding to the four edges.
             [0] = top_right, [1] = top_left, [2] = bottom_left, [3] = bottom_right.
         """
-        top_right = []
-        for num in range(0, self.HALF_ARENA):
-            x = self.HALF_ARENA + num
-            y = self.ARENA_SIZE - 1 - num
-            top_right.append([int(x), int(y)])
-        top_left = []
-        for num in range(0, self.HALF_ARENA):
-            x = self.HALF_ARENA - 1 - num
-            y = self.ARENA_SIZE - 1 - num
-            top_left.append([int(x), int(y)])
-        bottom_left = []
-        for num in range(0, self.HALF_ARENA):
-            x = self.HALF_ARENA - 1 - num
-            y = num
-            bottom_left.append([int(x), int(y)])
-        bottom_right = []
-        for num in range(0, self.HALF_ARENA):
-            x = self.HALF_ARENA + num
-            y = num
-            bottom_right.append([int(x), int(y)])
-        return [top_right, top_left, bottom_left, bottom_right]
+        return [self.get_edge_locations(e) for e in range(4)]
     
     def add_unit(self, unit_type, location, player_index=0):
         """Add a single GameUnit to the map at the given location.
