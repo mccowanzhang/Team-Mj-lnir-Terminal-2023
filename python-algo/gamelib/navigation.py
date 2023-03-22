@@ -190,7 +190,6 @@ class ShortestPathFinder:
                     neighbor_node.visited_validate = True
                     current.put(neighbor)
 
-        #debug_write("Print after validate")
         #self.print_map()
         return
 
@@ -268,6 +267,7 @@ class ShortestPathFinder:
                 #debug_write("contender {} has the same x coord as prev tile {} so we will keep best move {}".format(new_tile, prev_tile, prev_best))
                 return False
             return True
+        # in the case of newly deployed unit, prefer a verticle movement
         if previous_move_direction == 0: 
             if prev_tile[1] == new_tile[1]: 
                 return False

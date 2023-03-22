@@ -118,12 +118,13 @@ class GameMap:
             return
 
         edges = []
-        if quadrant_description == self.TOP_LEFT:
+        # TODO: Double check that the original code here is buggy!!!
+        if quadrant_description == self.TOP_RIGHT:
             for num in range(0, self.HALF_ARENA):
                 x = self.HALF_ARENA + num
                 y = self.ARENA_SIZE - 1 - num
                 edges.append([int(x), int(y)])
-        elif quadrant_description == self.TOP_RIGHT:
+        elif quadrant_description == self.TOP_LEFT:
             for num in range(0, self.HALF_ARENA):
                 x = self.HALF_ARENA - 1 - num
                 y = self.ARENA_SIZE - 1 - num
