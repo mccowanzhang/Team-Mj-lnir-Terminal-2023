@@ -29,12 +29,13 @@ class CustomPathFinder(ShortestPathFinder):
         self.initialized = True
         # flags for downstream querying tasks
         self.static_quadrants = []
-        self.destruct_ready = False
         self.dynamic_ready = False
         # important data structures
         self.game_state = game_state
         self.game_map = self.game_state.game_map
         self.node_map = [[Node() for x in range(self.game_state.ARENA_SIZE)] for y in range(self.game_state.ARENA_SIZE)]
+        # caching self destruct locations
+        self.destruct_map = {i : {} for i in range(4)}
 
     def prep_static_shortest_path(self, quadrants: List[int] = [0, 1]):
         if not self.initialized:
@@ -109,7 +110,50 @@ class CustomPathFinder(ShortestPathFinder):
             path.append(next_move)
             current = next_move
         return path
-    
+
+    def calc_static_destruct_point(self, start_point: Tuple[int, int], quadrant):
+        # use cache if possible
+        if start_point in self.destruct_map[quadrant]:
+            return self.destruct_map[quadrant][start_point]
+
+        destruct_point = start_point
+        best_idealness = self._get_idealness(start_point, quadrant)
+        current = queue.Queue()
+        # dict holding visited node
+        visited = set()
+        current.put(start_point)
+        visited.add(start_point)
+        while not current.empty():
+            current_loc = current.get()
+            for neighbor in self._get_neighbors(current_loc):
+                if not self.game_map.in_arena_bounds(neighbor) or self.node_map[neighbor[0]][neighbor[1]].blocked:
+                    continue
+                
+                new_idealness = self._get_idealness(neighbor, quadrant)
+                if new_idealness > best_idealness:
+                    best_idealness = new_idealness
+                    destruct_point = neighbor
+
+                if not neighbor in visited:
+                    visited.add(neighbor)
+                    current.put(neighbor)
+
+        # cache the BFS above
+        self.destruct_map[quadrant][start_point] = destruct_point 
+        return destruct_point
+
+    def _get_idealness(point, quadrant):
+        idealness = 0
+        if quadrant in [0, 1]:
+            idealness += 28 * point[1]
+        else: 
+            idealness += 28 * (27 - point[1])
+        if quadrant in [0, 3]:
+            idealness += point[0]
+        else: 
+            idealness += (27 - point[0])
+        return idealness
+
     def _choose_next_move(self, current_point, previous_move_direction, direction, quadrant):
         """
         Given the current location and adjacent locations, return the best 'next step' for a given unit to take
