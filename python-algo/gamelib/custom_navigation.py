@@ -1,7 +1,9 @@
 from .navigation import ShortestPathFinder, Node
 from .game_state import GameState
+from .unit import GameUnit
 from .util import debug_write
 from typing import List, Tuple
+from copy import deepcopy
 import queue
 
 # constants
@@ -19,9 +21,11 @@ class Node:
         self.dist = dict()
         self.visited = dict()
 
+
 class CustomPathFinder(ShortestPathFinder):
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
+        self.config = config
         # cache
         self.end_points_dict = dict()
 
@@ -34,6 +38,10 @@ class CustomPathFinder(ShortestPathFinder):
         self.game_state = game_state
         self.game_map = self.game_state.game_map
         self.node_map = [[Node() for x in range(self.game_state.ARENA_SIZE)] for y in range(self.game_state.ARENA_SIZE)]
+        # fill in walls
+        for loc in self.game_map:
+            if self.game_state.contains_stationary_unit(loc):
+                self.node_map[loc[0]][loc[1]].blocked = True
         # caching self destruct locations
         self.destruct_map = {i : {} for i in range(4)}
 
@@ -46,7 +54,6 @@ class CustomPathFinder(ShortestPathFinder):
             if quadrant not in self.end_points_dict:
                 self.end_points_dict[quadrant] = self.game_map.get_edge_locations(quadrant)
             end_points = self.end_points_dict[quadrant]
-            debug_write(end_points)
         
             current = queue.Queue()
             for ep in end_points:
@@ -75,7 +82,7 @@ class CustomPathFinder(ShortestPathFinder):
         # infer quadrant
         if quadrant < 0:
             quadrant = self.infer_quadrant(start_point)
-            debug_write(f"inferred quadrant is: {quadrant}")
+            # debug_write(f"inferred quadrant is: {quadrant}")
         if not quadrant in self.static_quadrants:
             debug_write(f"shortest path related to q:{quadrant} is not calculated yet")
             return []
@@ -85,11 +92,6 @@ class CustomPathFinder(ShortestPathFinder):
         if not start_node.visited[quadrant]:
             return []
         
-        # actual construction work done here!
-        path = [start_point]
-        current = start_point
-        # default move direction is 
-        move_direction = 0
         # calculate direction from quadrant
         if quadrant == TOP_RIGHT:
             direction = [1, 1]
@@ -99,23 +101,9 @@ class CustomPathFinder(ShortestPathFinder):
             direction = [-1, -1]
         else:
             direction = [1, -1]
+        return self._build_path_after_bfs(start_point, quadrant, direction)
 
-        while not self.node_map[current[0]][current[1]].dist[quadrant] == 0:
-            next_move = self._choose_next_move(current, move_direction, direction, quadrant)
-
-            if current[0] == next_move[0]:
-                move_direction = self.VERTICAL
-            else:
-                move_direction = self.HORIZONTAL
-            path.append(next_move)
-            current = next_move
-        return path
-
-    def calc_static_destruct_point(self, start_point: Tuple[int, int], quadrant):
-        # use cache if possible
-        if start_point in self.destruct_map[quadrant]:
-            return self.destruct_map[quadrant][start_point]
-
+    def calc_static_destruct_path(self, start_point: Tuple[int, int], quadrant):
         destruct_point = start_point
         best_idealness = self._get_idealness(start_point, quadrant)
         current = queue.Queue()
@@ -137,10 +125,54 @@ class CustomPathFinder(ShortestPathFinder):
                 if not neighbor in visited:
                     visited.add(neighbor)
                     current.put(neighbor)
+        
+        # backward BFS from destruct point
+        current = queue.Queue()
+        tmp_quadrant = 4
+        self.node_map[destruct_point[0]][destruct_point[1]].dist[tmp_quadrant] = 0
+        self.node_map[destruct_point[0]][destruct_point[1]].visited[tmp_quadrant] = True
+        current.put(destruct_point)
 
-        # cache the BFS above
-        self.destruct_map[quadrant][start_point] = destruct_point 
-        return destruct_point
+        while not current.empty():
+            current_loc = current.get()
+            current_node = self.node_map[current_loc[0]][current_loc[1]]
+            for neighbor in self._get_neighbors(current_loc):
+                if not self.game_map.in_arena_bounds(neighbor) or self.node_map[neighbor[0]][neighbor[1]].blocked:
+                    continue
+
+                neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
+                if not neighbor_node.visited.get(tmp_quadrant) and not current_node.blocked:
+                    neighbor_node.dist[tmp_quadrant] = current_node.dist[quadrant] + 1
+                    neighbor_node.visited[tmp_quadrant] = True
+                    current.put(neighbor)
+
+        # calculate direction from quadrant
+        if quadrant == TOP_RIGHT:
+            direction = [1, 1]
+        elif quadrant == TOP_LEFT:
+            direction = [-1, 1]
+        elif quadrant == BOTTOM_LEFT:
+            direction = [-1, -1]
+        else:
+            direction = [1, -1]
+        self._build_path_after_bfs(start_point, tmp_quadrant, direction)
+    
+    def _build_path_after_bfs(self, start_point, quadrant, direction):
+        path = [start_point]
+        current = start_point
+        # default move direction is 
+        move_direction = 0
+
+        while not self.node_map[current[0]][current[1]].dist[quadrant] == 0:
+            next_move = self._choose_next_move(current, move_direction, direction, quadrant)
+
+            if current[0] == next_move[0]:
+                move_direction = self.VERTICAL
+            else:
+                move_direction = self.HORIZONTAL
+            path.append(next_move)
+            current = next_move
+        return path
 
     def _get_idealness(point, quadrant):
         idealness = 0
@@ -234,3 +266,25 @@ class CustomPathFinder(ShortestPathFinder):
                 return 1
             else:
                 return 2
+
+    """
+    Below are the core codes for dynamic path finding - which involves complicated
+    game logic simulation and should be written & checked carefully
+    """
+    def calc_dynamic_shortest_path(self, 
+        start_point: Tuple[int, int], 
+        game_unit: GameUnit, 
+        quantity: int = 1, 
+        quadrant: int = -1):
+        # infer quadrant
+        if quadrant < 0:
+            quadrant = self.infer_quadrant(start_point)
+        if not quadrant in self.static_quadrants:
+            debug_write(f"shortest path related to q:{quadrant} is not calculated yet")
+            return []
+        # reserve a copy
+        old_node_map = deepcopy(self.node_map)
+        static_path = self.calc_static_shortest_path()
+        if not static_path:
+            static_path = self.calc_static_destruct_path()
+        return

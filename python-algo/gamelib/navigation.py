@@ -113,7 +113,7 @@ class ShortestPathFinder:
         """Get the locations adjacent to a location
         """
         x, y = location
-        return [[x, y + 1], [x, y - 1], [x + 1, y], [x - 1, y]]
+        return [(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y)]
 
     def _get_direction_from_endpoints(self, end_points):
         """Prints a message to the games debug output
