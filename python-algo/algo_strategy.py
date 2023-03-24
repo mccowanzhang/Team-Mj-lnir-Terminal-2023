@@ -25,6 +25,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         seed = random.randrange(maxsize)
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
+        self.strategy = self.Strategy() 
 
     def on_game_start(self, config):
         """ 
@@ -56,7 +57,13 @@ class AlgoStrategy(gamelib.AlgoCore):
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
-        self.starter_strategy(game_state)
+        if game_state.turn_number == 1:
+            self.strategy.opener(game_state)
+        elif game_state.turn_number == 2:
+            self.strategy = self.strategy.decide_strategy(game_state)
+            self.strategy.opener(game_state)
+        else:
+            self.strategy.play_turn(game_state)
 
         game_state.submit_turn()
 
@@ -65,6 +72,74 @@ class AlgoStrategy(gamelib.AlgoCore):
     NOTE: All the methods after this point are part of the sample starter-algo
     strategy and can safely be replaced for your custom algo.
     """
+
+    class Strategy:
+        def __init(self):
+            """
+            init
+            """
+            pass
+
+        def play_turn(self, game_state):
+            """
+            decision making
+            """
+            if game_state.get_resource(game_state.MP, 1) > 10:
+                self.reactive_defense(game_state)
+            if game_state.get_resource(game_state.MP, 0) > 10:
+                self.reactive_offense(game_state)
+        
+        def opener(self, game_state):
+            """
+            starting opener
+            """
+            wall_locations = [[8, 12], [19, 12]]
+            game_state.attempt_spawn(WALL, wall_locations)
+                            
+        def reactive_defense(self, game_state):
+            """
+            plays defenses
+            """
+            # if 
+
+        def reactive_offense(self, game_state):
+            """
+            plays offense
+            """
+            print(123)
+
+        def decide_strategy(self, game_state):
+            """
+            choose rock-paper-scissors
+            """
+            return Rock()
+
+    class Rock(Strategy):
+        def __init__(self):
+            super().__init__()
+
+        def opener(self, game_state):
+            """
+            opening positioning for strat 1
+            """
+            wall_locations = [[8, 12], [19, 12]]
+            game_state.attempt_spawn(WALL, wall_locations)
+
+        def repair_walls(self, game_state):
+            wall_locations = [[8, 12], [19, 12]]
+            game_state.attempt_spawn(WALL, wall_locations)
+
+        def one_chambers(self, game_state):
+            wall_locations = [[8, 12], [19, 12]]
+            game_state.attempt_spawn(WALL, wall_locations)
+
+        def three_chambers(self, game_state):
+            wall_locations = [[8, 12], [19, 12]]
+            game_state.attempt_spawn(WALL, wall_locations) 
+            
+        def offense(self, game_state):
+            wall_locations = [[8, 12], [19, 12]]
+            game_state.attempt_spawn(WALL, wall_locations)
 
     def starter_strategy(self, game_state):
         """
