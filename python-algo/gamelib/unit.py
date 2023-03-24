@@ -69,6 +69,7 @@ class GameUnit:
         self.damage_i = type_config.get("attackDamageWalker", self.damage_i)
         self.attackRange = type_config.get("attackRange", self.attackRange)
         self.shieldRange = type_config.get("shieldRange", self.shieldRange)
+        self.health = type_config.get("startHealth", self.max_health) - self.max_health + self.health
         self.max_health = type_config.get("startHealth", self.max_health)
         self.shieldPerUnit = type_config.get("shieldPerUnit", self.shieldPerUnit)
         self.shieldBonusPerY = type_config.get("shieldBonusPerY", self.shieldBonusPerY)
