@@ -48,7 +48,7 @@ class GameState:
 
     """
 
-    def __init__(self, config, serialized_string, tiles=None):
+    def __init__(self, config, serialized_string, tiles=None, action_frame=False):
         """ Setup a turns variables using arguments passed
 
         Args:
@@ -60,6 +60,7 @@ class GameState:
         self.config = config
         self.enable_warnings = True
         self.tiles = tiles
+        self.action_frame = action_frame
 
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, REMOVE, UPGRADE, STRUCTURE_TYPES, ALL_UNITS, UNIT_TYPE_TO_INDEX
         UNIT_TYPE_TO_INDEX = {}

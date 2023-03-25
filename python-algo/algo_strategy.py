@@ -270,6 +270,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                 self.scored_on_locations.append(location)
                 gamelib.debug_write("All locations: {}".format(self.scored_on_locations))
 
+    game_state = gamelib.GameState(self.config, turn_string, tiles)
+
 
 if __name__ == "__main__":
     algo = AlgoStrategy()
