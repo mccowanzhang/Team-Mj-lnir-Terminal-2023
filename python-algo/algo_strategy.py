@@ -19,6 +19,7 @@ Advanced strategy tips:
   board states. Though, we recommended making a copy of the map to preserve 
   the actual current map state.
 """
+tiles, EDGES, EDGE0, EDGE1, EDGE2, EDGE3 = []
 
 class AlgoStrategy(gamelib.AlgoCore):
     def __init__(self):
@@ -26,6 +27,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         seed = random.randrange(maxsize)
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
+
+        self.strategy = self.Strategy()
 
     def on_game_start(self, config):
         """ 
@@ -42,6 +45,19 @@ class AlgoStrategy(gamelib.AlgoCore):
         INTERCEPTOR = config["unitInformation"][5]["shorthand"]
         MP = 1
         SP = 0
+
+        global tiles, EDGES, EDGE0, EDGE1, EDGE2, EDGE3
+        fmap = gamelib.GameMap(self.config)
+        EDGES = fmap.get_edges
+        EDGE0 = fmap.get_edge_locations(self.TOP_RIGHT)
+        EDGE1 = fmap.get_edge_locations(self.TOP_LEFT)
+        EDGE2 = fmap.get_edge_locations(self.BOTTOM_LEFT)
+        EDGE3 = fmap.get_edge_locations(self.BOTTOM_RIGHT)
+
+        for x in range(28):
+            for y in range(28):
+                tiles.append(gamelib.Tile(x, y, [x, y] in [EDGES]))
+
         # This is a good place to do initial setup
         self.strategy = strategies.Strategy(config)
         self.scored_on_locations = []
