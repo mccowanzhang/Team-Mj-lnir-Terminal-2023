@@ -1,6 +1,7 @@
 import math
 from .unit import GameUnit
 
+
 class Tile:
     def __init__(self, x, y, is_edge):
         self.x = x
