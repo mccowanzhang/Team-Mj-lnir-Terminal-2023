@@ -133,10 +133,6 @@ class GameState:
         Helper function for __parse_state to add units to the map.
         """
         typedef = self.config.get("unitInformation")
-        if self.tiles:
-            for x in self.tiles:
-                x.remove_unit()
-            debug_write(len(self.tiles))
 
         for i, unit_types in enumerate(units):
             for uinfo in unit_types:

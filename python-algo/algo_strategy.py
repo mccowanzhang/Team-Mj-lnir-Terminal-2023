@@ -31,8 +31,6 @@ class AlgoStrategy(gamelib.AlgoCore):
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
 
-        gamelib.debug_write(os.path.abspath(os.getcwd()))
-
         global tiles, EDGES
         fmap = gamelib.GameMap(self.config)
         EDGES = fmap.get_edges()
@@ -42,8 +40,6 @@ class AlgoStrategy(gamelib.AlgoCore):
                 tiles.append(gamelib.Tile(x, y, [x, y] in EDGES[0] or [x, y] in EDGES[1] or
                                           [x, y] in EDGES[2] or [x, y] in EDGES[3]))
 
-        sys.stderr.write("tiles: " + str(len(EDGES)))
-        sys.stderr.write("tiles: " + str(len(tiles)))
 
     def on_game_start(self, config):
         """ 
