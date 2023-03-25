@@ -131,6 +131,11 @@ class GameState:
         Helper function for __parse_state to add units to the map.
         """
         typedef = self.config.get("unitInformation")
+
+        from ..algo_strategy import tiles
+        for x in tiles:
+            x.remove_unit()
+
         for i, unit_types in enumerate(units):
             for uinfo in unit_types:
                 unit_type = typedef[i].get("shorthand")
@@ -148,6 +153,7 @@ class GameState:
                 else:
                     unit = GameUnit(unit_type, self.config, player_number, hp, x, y)
                     self.game_map[x,y].append(unit)
+                    tiles[28 * y + x].add(unit)
 
     def __resource_required(self, unit_type):
         return self.SP if is_stationary(unit_type) else self.MP

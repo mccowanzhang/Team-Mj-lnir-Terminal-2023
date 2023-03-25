@@ -19,7 +19,7 @@ class Tile:
         self.unit = None
 
     def add_shield(self, key, amount):
-        if key >= 392:
+        if key < 392:
             self.friendly_shield.update({key: amount})
         else:
             self.enemy_shield.update({key: amount})
@@ -53,7 +53,7 @@ class Tile:
         return [self.x, self.y]
 
     def get_location_abs(self):
-        return 28 * (27 - self.y) + self.x
+        return 28 * self.y + self.x
 
     def surrounding_locations(self, radius):
         locations = []
@@ -82,6 +82,8 @@ class FriendlyTile(Tile):
         self.pathing = False
 
 
+
+
 ## Offense and Defense Prediction
 class EnemyTile(Tile):
     def __init__(self, x, y, is_edge):
@@ -90,6 +92,7 @@ class EnemyTile(Tile):
 
     def round_history(self, unit_type):
         self.unit_history.append(unit_type)
+
 
 
 

@@ -20,7 +20,7 @@ class GameMap:
         * BOTTOM_RIGHT (int): A constant that represents the bottom right edge
 
     """
-    def __init__(self, config):
+    def __init__(self, config, tiles=None):
         """Initializes constants and game map
 
         Args:
@@ -37,6 +37,7 @@ class GameMap:
         self.BOTTOM_RIGHT = 3
         self.__map = self.__empty_grid()
         self.__start = [13,0]
+        self.tiles = tiles
     
     def __getitem__(self, location):
         if len(location) == 2 and self.in_arena_bounds(location):
@@ -173,6 +174,8 @@ class GameMap:
             self.__map[x][y].append(new_unit)
         else:
             self.__map[x][y] = [new_unit]
+            if self.tiles:
+                self.tiles[28 * y + x].add_unit(new_unit)
 
     def remove_unit(self, location):
         """Remove all units on the map in the given location.
@@ -188,6 +191,8 @@ class GameMap:
         
         x, y = location
         self.__map[x][y] = []
+        if self.tiles:
+            self.tiles[28 * y + x].remove_unit()
 
     def get_locations_in_range(self, location, radius):
         """Gets locations in a circular area around a location
