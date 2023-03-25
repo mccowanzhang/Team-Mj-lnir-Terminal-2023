@@ -27,6 +27,7 @@ class CentreAttack(Strategy):
         self.r_attack_scout_location = [6,7]
         self.l_attack_demolisher_locations = [21,7]
         self.l_attack_scout_location = [21,7]
+        self.attack_locations = [[6,7],[7,6],[8,5],[9,4],[10,3],[11,2],[12,1],[13,0],[14,0],[15,1],[16,2],[17,3],[18,4],[19,5],[20,6],[21,7]]
 
         # global variables
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP
@@ -66,13 +67,3 @@ class CentreAttack(Strategy):
             game_state.attempt_spawn(INTERCEPTOR, self.l_three_chamber_locations)
         else:
             game_state.attempt_spawn(INTERCEPTOR, self.r_three_chamber_locations)
-
-    def attack(self, game_state, num_demolishers, num_scouts):
-        if self.attack_direction == self.RIGHT:
-            game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
-            game_state.attempt_spawn(DEMOLISHER, self.r_attack_demolisher_locations, num_demolishers)
-            game_state.attempt_spawn(SCOUT, self.r_attack_scout_location, num_scouts)
-        else: 
-            game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
-            game_state.attempt_spawn(DEMOLISHER, self.l_attack_demolisher_locations, num_demolishers)
-            game_state.attempt_spawn(SCOUT, self.l_attack_scout_location, num_scouts)
