@@ -1,6 +1,7 @@
 import math
 import json
 import sys
+import os
 
 from .navigation import ShortestPathFinder
 from .util import send_command, debug_write
@@ -47,7 +48,7 @@ class GameState:
 
     """
 
-    def __init__(self, config, serialized_string):
+    def __init__(self, config, serialized_string, tiles=None):
         """ Setup a turns variables using arguments passed
 
         Args:
@@ -58,6 +59,7 @@ class GameState:
         self.serialized_string = serialized_string
         self.config = config
         self.enable_warnings = True
+        self.tiles = tiles
 
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, REMOVE, UPGRADE, STRUCTURE_TYPES, ALL_UNITS, UNIT_TYPE_TO_INDEX
         UNIT_TYPE_TO_INDEX = {}
@@ -131,6 +133,11 @@ class GameState:
         Helper function for __parse_state to add units to the map.
         """
         typedef = self.config.get("unitInformation")
+        if self.tiles:
+            for x in self.tiles:
+                x.remove_unit()
+            debug_write(len(self.tiles))
+
         for i, unit_types in enumerate(units):
             for uinfo in unit_types:
                 unit_type = typedef[i].get("shorthand")
@@ -148,6 +155,8 @@ class GameState:
                 else:
                     unit = GameUnit(unit_type, self.config, player_number, hp, x, y)
                     self.game_map[x,y].append(unit)
+                    if self.tiles:
+                        self.tiles[28 * y + x].add_unit(unit)
 
     def __resource_required(self, unit_type):
         return self.SP if is_stationary(unit_type) else self.MP

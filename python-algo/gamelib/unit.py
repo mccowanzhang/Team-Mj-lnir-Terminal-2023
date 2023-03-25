@@ -1,3 +1,5 @@
+
+
 def is_stationary(unit_type, structure_types):
     """
         Args:
