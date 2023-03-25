@@ -4,6 +4,7 @@ import math
 import warnings
 from sys import maxsize
 import json
+import strategies
 
 
 """
@@ -25,7 +26,6 @@ class AlgoStrategy(gamelib.AlgoCore):
         seed = random.randrange(maxsize)
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
-        self.strategy = self.Strategy() 
 
     def on_game_start(self, config):
         """ 
@@ -43,6 +43,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         MP = 1
         SP = 0
         # This is a good place to do initial setup
+        self.strategy = strategies.Strategy(config)
         self.scored_on_locations = []
 
     def on_turn(self, turn_state):
@@ -77,210 +78,9 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         choose rock-paper-scissors
         """
-
         return self.CornerAttack()
     
-    class Strategy:
-        def __init__(self):
-            """
-            init
-            """
-            # directions for deciding where to focus defense/offense
-            self.LEFT = 0
-            self.CENTRE = 1
-            self.RIGHT = 2
-            # which side to defend, weighting on where we think they will attack to decide which defenses we allocate
-            self.defend_left = 10
-            self.defend_centre = 10
-            self.defend_right = 10
-            # direction for attack
-            self.attack_direction = 0
 
-        def play_turn(self, game_state):
-            """
-            decision making
-            """
-            # analyze map to update strategy 
-            # - update defend_left... based on their attack patterns...
-            # - update attack direction
-
-            # TO REPLACE analyze if enemy will attack
-            defense_turn = game_state.get_resource(game_state.MP, 1) > 10
-            if defense_turn:
-                self.reactive_defense(game_state)
-
-            # TO REPLACE analyze if we can send a strong enough attack 
-            # and what number of each unit
-            attack_turn = game_state.get_resource(game_state.MP) > 10
-            demolishers = 2
-            scouts = 2
-            if attack_turn:
-                self.reactive_offense(game_state, demolishers, scouts)
-
-            # how we spend struct points
-            extra_struct_points = True
-            if extra_struct_points:
-                self.build_up_base(game_state)
-        
-        def round_one(self, game_state):
-            interceptor_locations = [[3,10],[24,10],[8,5],[19,5]]
-            game_state.attempt_spawn(INTERCEPTOR, interceptor_locations)
-                            
-        def reactive_defense(self, game_state):
-            """
-            plays defenses
-            """
-            # TO REPLACE decide where they will attack from and defend accordingly 
-            # most_likely = max(self.defend_centre, self.defend_left, self.defend_right)
-
-            # if most_likely == self.defend_centre:
-            #     #defend centre
-            #     pass 
-            # elif most_likely == self.defend_left:
-            #     #defend left
-            #     pass
-            # else:
-            #     #defend right
-            #     pass 
-
-            self.bombs(game_state, self.RIGHT)
-            self.bombs(game_state, self.LEFT)
-
-        def reactive_offense(self, game_state, num_demolishers, num_scouts):
-            """
-            plays offense
-            """
-            # where to attack from
-            self.attack(game_state, num_demolishers, num_scouts)
-
-        def build_up_base(self, game_state):
-
-            # repair initial base
-            for l, c, r in zip(self.l_turret_locations, self.c_turret_locations, self.r_turret_locations):
-                game_state.attempt_spawn(TURRET, l)
-                game_state.attempt_spawn(TURRET, c)
-                game_state.attempt_spawn(TURRET, r)
-
-            for l, r in zip(self.l_upgraded_wall_locations, self.r_upgraded_wall_locations):
-                game_state.attempt_spawn(WALL, l)
-                game_state.attempt_upgrade(l)
-                game_state.attempt_spawn(WALL, r)
-                game_state.attempt_upgrade(r)
-
-            game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
-            game_state.attempt_spawn(WALL, self.r_chamber_wall_locations)
-            game_state.attempt_spawn(WALL, self.l_navigation_wall_locations)
-            game_state.attempt_spawn(WALL, self.r_navigation_wall_locations)
-
-            # build up supports
-            for location in zip(self.upgraded_support_locations):
-                game_state.attempt_spawn(SUPPORT, location)
-                game_state.attempt_upgrade(location)
-
-            # fortify defenses 
-            for l, r in zip(self.l_turret_locations, self.r_turret_locations):
-                game_state.attempt_upgrade(l)
-                game_state.attempt_upgrade(r)
-
-            for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
-                game_state.attempt_spawn(TURRET, l)
-                game_state.attempt_spawn(TURRET, r)
-
-
-    class CornerAttack(Strategy):
-        def __init__(self):
-            super().__init__()
-            # structure placements
-            self.l_turret_locations = [[6,12],[2,12]]
-            self.r_turret_locations = [[21,12],[25,12]]
-            self.c_turret_locations = [[11,6],[16,6]]
-            self.l_upgraded_wall_locations = [[0,13],[5,13]]
-            self.r_upgraded_wall_locations = [ [22,13], [27,13]]
-            self.l_chamber_wall_locations = [[1,13],[2,12],[3,12],[4,11],[5,10],[6,9],[6,8]]
-            self.r_chamber_wall_locations = [[26,13],[25,12],[24,12],[23,11],[22,10],[21,9],[21,8]]
-            self.l_navigation_wall_locations =[[5,13],[6,12],[7,11],[8,10],[9,9],[10,8],[11,7],[12,6],[13,5]]
-            self.r_navigation_wall_locations =[[22,13],[21,12],[20,11],[19,10],[18,9],[17,8],[16,7],[15,6],[14,5]]
-            self.upgraded_support_locations = [[13,10],[14,10],[13,9],[14,9]]
-            self.l_extra_turret_locations = [[2,11],[3,12],[7,12]]
-            self.r_extra_turret_locations = [[25,11],[24,12],[20,12]]
-
-            # mobile placements
-            self.l_one_chamber_locations = [[1,12]]
-            self.r_one_chamber_locations = [ [26,12]]
-            self.l_three_chamber_locations = [[4,9]]
-            self.r_three_chamber_locations = [[23,9]]
-            self.r_attack_demolisher_locations = [21,7]
-            self.r_attack_scout_location = [11,2]
-            self.l_attack_demolisher_locations = [6,7]
-            self.l_attack_scout_location = [16,2]
-
-        def opener(self, game_state):
-            """
-            starting map for this strat
-            """
-            game_state.attempt_spawn(TURRET, self.l_turret_locations)
-            game_state.attempt_spawn(TURRET, self.r_turret_locations)
-            game_state.attempt_spawn(WALL, self.l_upgraded_wall_locations)
-            game_state.attempt_upgrade(self.l_upgraded_wall_locations)
-            game_state.attempt_spawn(WALL, self.r_upgraded_wall_locations)
-            game_state.attempt_upgrade(self.r_upgraded_wall_locations)
-
-            game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
-            game_state.attempt_spawn(WALL, self.r_chamber_wall_locations)
-            game_state.attempt_spawn(WALL, self.l_navigation_wall_locations)
-            game_state.attempt_spawn(WALL, self.r_navigation_wall_locations)
-
-        def bomb_counter(self, game_state, dir):
-            if dir == self.LEFT:
-                game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
-            else:
-                game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
-
-        def bombs(self, game_state, dir):
-            if dir == self.LEFT:
-                game_state.attempt_spawn(INTERCEPTOR, self.l_three_chamber_locations)
-            else:
-                game_state.attempt_spawn(INTERCEPTOR, self.r_three_chamber_locations)
-
-        def attack(self, game_state, num_demolishers, num_scouts):
-            if self.attack_direction == self.RIGHT:
-                game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
-                game_state.attempt_spawn(DEMOLISHER, self.r_attack_demolisher_locations, num_demolishers)
-                game_state.attempt_spawn(SCOUT, self.r_attack_scout_location, num_scouts)
-            else: 
-                game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
-                game_state.attempt_spawn(DEMOLISHER, self.l_attack_demolisher_locations, num_demolishers)
-                game_state.attempt_spawn(SCOUT, self.l_attack_scout_location, num_scouts)
-
-    class Rock(Strategy):
-        def __init__(self):
-            super().__init__()
-
-        def opener(self, game_state):
-            """
-            opening positioning for strat 1
-            """
-            wall_locations = [[8, 12], [19, 12]]
-            game_state.attempt_spawn(WALL, wall_locations)
-
-        def repair_walls(self, game_state):
-            wall_locations = [[8, 12], [19, 12]]
-            game_state.attempt_spawn(WALL, wall_locations)
-
-        def one_chambers(self, game_state):
-            wall_locations = [[8, 12], [19, 12]]
-            game_state.attempt_spawn(WALL, wall_locations)
-
-        def three_chambers(self, game_state):
-            wall_locations = [[8, 12], [19, 12]]
-            game_state.attempt_spawn(WALL, wall_locations) 
-            
-        def offense(self, game_state):
-            wall_locations = [[8, 12], [19, 12]]
-            game_state.attempt_spawn(WALL, wall_locations)
-
-
-        
 
 
     def starter_strategy(self, game_state):
