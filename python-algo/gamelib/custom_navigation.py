@@ -325,7 +325,7 @@ class CustomPathFinder(ShortestPathFinder):
                     enemy_list.append(loc_unit)
 
         # safe check that handles cases like (1, 2) == [1, 2]
-        while i != len(static_path) - 1:
+        while i != len(static_path):
             # receive shield
             new_shield_list = []
             new_destroyed_list = []
@@ -359,12 +359,6 @@ class CustomPathFinder(ShortestPathFinder):
                     else:
                         reduced_health = damage
                     total_health -= reduced_health
-                if not quantity or total_health <= 0: # failed
-                    return {
-                        "dynamic_path": dynamic_path,
-                        "success": False,
-                        "remain_quantity": 0
-                    }
                 # simulate attacking some enemies
                 while total_damage > 0 and enemy_attacked:
                     reduced_health = min(attacked_health, total_damage)
@@ -387,9 +381,20 @@ class CustomPathFinder(ShortestPathFinder):
                             attacked_map[enemy_attacked] = enemy_attacked.health
                         attacked_health = attacked_map.get(enemy_attacked, 0)
                     attacked_map[enemy_attacked] = attacked_health
+                    
+                if not quantity or total_health <= 0: # failed
+                    return {
+                        "dynamic_path": dynamic_path,
+                        "success": False,
+                        "remain_quantity": 0,
+                        "destroyed": destroyed_list
+                    }
 
             # simulate editing the shortest path
             i += 1
+            if i == len(static_path):
+                continue 
+
             if new_destroyed_list:
                 self._partial_update_shortest_path(new_destroyed_list, quadrant=quadrant)
                 new_static_path, last_direction = self.calc_static_shortest_path(curr_loc, tmp_quadrant, last_direction)
