@@ -60,9 +60,11 @@ class Strategy():
         path_finder.prep_static_shortest_path()
         for combo in attack_combinations:
             for location in self.attack_locations:
-                attack = path_finder.calc_dynamic_shortest_path(location, gamelib.GameUnit(DEMOLISHER, self.config, 0, 5, location[0], location[1]), combo[1])
-                if attack["remain_quantity"] > best_attack["damage"]:
-                    best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": attack["remain_quantity"]}
+                units = [gamelib.GameUnit(SCOUT, self.config, 0, 5, location[0], location[1]), 
+                        gamelib.GameUnit(DEMOLISHER, self.config, 0, 5, location[0], location[1])]
+                attack = path_finder.calc_dynamic_shortest_path(location, units, combo)
+                if sum(attack["remain_quantities"]) > best_attack["damage"]:
+                    best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": sum(attack["remain_quantities"])}
         
 
         attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
@@ -126,8 +128,9 @@ class Strategy():
             game_state.attempt_upgrade(l)
             game_state.attempt_upgrade(r)
 
-        for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
+        for l, c, r in zip(self.l_extra_turret_locations, self.c_extra_turret_locations, self.r_extra_turret_locations):
             game_state.attempt_spawn(TURRET, l)
+            game_state.attempt_spawn(TURRET, c)
             game_state.attempt_spawn(TURRET, r)
 
         for l, r in zip(self.l_chamber_wall_locations, self.r_chamber_wall_locations):
@@ -138,8 +141,9 @@ class Strategy():
             game_state.attempt_upgrade(l)
             game_state.attempt_upgrade(r)
 
-        for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
+        for l, c, r in zip(self.l_extra_turret_locations, self.c_extra_turret_locations, self.r_extra_turret_locations):
             game_state.attempt_upgrade(l)
+            game_state.attempt_upgrade(c)
             game_state.attempt_upgrade(r)
 
         for location in self.extra_extra_support_locations:
