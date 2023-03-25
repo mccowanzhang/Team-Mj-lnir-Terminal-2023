@@ -58,6 +58,8 @@ class Tile:
     def get_location_abs(self):
         return 28 * self.y + self.x
 
+    def is_valid(self):
+        return self.is_valid
 
     def surrounding_locations(self, radius):
         locations = []
