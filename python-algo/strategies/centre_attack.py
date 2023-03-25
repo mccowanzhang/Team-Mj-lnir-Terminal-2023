@@ -7,8 +7,8 @@ class CentreAttack(Strategy):
         self.l_turret_locations = [[5,12],[2,12]]
         self.r_turret_locations = [[22,12],[25,12]]
         self.c_turret_locations = [[10,12],[17,12],[11,12],[16,12]]
-        self.l_upgraded_wall_locations = [[0,13],[11,13]]
-        self.r_upgraded_wall_locations = [ [27,13], [16,13]]
+        self.l_upgraded_wall_locations = [[0,13]]
+        self.r_upgraded_wall_locations = [[27,13]]
         self.l_chamber_wall_locations = [[3,11],[4,11],[4,10],[5,12],[6,11],[6,10],[6,9],[6,8]]
         self.r_chamber_wall_locations = [[24,11],[23,11],[23,10],[22,12],[21,11],[21,10],[21,9],[21,8]]
         self.l_navigation_wall_locations =[[0,13],[1,13],[2,13],[3,13],[4,13],[5,13],[6,13],[7,13],[8,13],[9,13],[10,13],[11,13]]
@@ -23,10 +23,6 @@ class CentreAttack(Strategy):
         self.r_one_chamber_locations = [[24,10]]
         self.l_three_chamber_locations = [[5,8]]
         self.r_three_chamber_locations = [[22,8]]
-        self.r_attack_demolisher_locations = [6,7]
-        self.r_attack_scout_location = [6,7]
-        self.l_attack_demolisher_locations = [21,7]
-        self.l_attack_scout_location = [21,7]
         self.attack_locations = [[6,7],[7,6],[8,5],[9,4],[10,3],[11,2],[12,1],[13,0],[14,0],[15,1],[16,2],[17,3],[18,4],[19,5],[20,6],[21,7]]
 
         # global variables

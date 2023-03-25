@@ -30,18 +30,22 @@ class Strategy():
         MP = 1
         SP = 0
 
-    def play_turn(self, game_state):
+    def play_turn(self, game_state, scored_on_locations):
         """
         decision making
         """
         # analyze map to update strategy 
-        # - update defend_left... based on their attack patterns...
-        # - update attack direction
+        if len(scored_on_locations) > 0:
+            x = scored_on_locations[len(scored_on_locations) - 1][0]
+            reinforce_side = self.LEFT 
+            if x < 8:
+                reinforce_side = self.LEFT
+            elif x <= 20:
+                reinforce_side = self.CENTRE
+            else:
+                reinforce_side = self.RIGHT
 
-        # TO REPLACE analyze if enemy will attack
-        defense_turn = game_state.get_resource(game_state.MP, 1) > 10
-        if defense_turn:
-            self.reactive_defense(game_state)
+        self.reactive_defense(game_state)
 
         # TO REPLACE analyze if we can send a strong enough attack 
         # and what number of each unit
@@ -60,9 +64,6 @@ class Strategy():
                 if attack["remain_quantity"] > best_attack["damage"]:
                     best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": attack["remain_quantity"]}
         
-        # attack_turn = game_state.get_resource(game_state.MP) > 10
-        # demolishers = 2
-        # scouts = 2
 
         attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
         if attack_turn:
@@ -81,21 +82,10 @@ class Strategy():
         """
         plays defenses
         """
-        # TO REPLACE decide where they will attack from and defend accordingly 
-        # most_likely = max(self.defend_centre, self.defend_left, self.defend_right)
-
-        # if most_likely == self.defend_centre:
-        #     #defend centre
-        #     pass 
-        # elif most_likely == self.defend_left:
-        #     #defend left
-        #     pass
-        # else:
-        #     #defend right
-        #     pass 
-
-        self.bombs(game_state, self.RIGHT)
-        self.bombs(game_state, self.LEFT)
+        defense_turn = game_state.get_resource(game_state.MP, 1) > 10
+        if defense_turn:
+            self.bombs(game_state, self.RIGHT)
+            self.bombs(game_state, self.LEFT)
 
     def reactive_offense(self, game_state, num_scouts, num_demolishers, location=[6,7]):
         """

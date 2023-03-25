@@ -23,10 +23,6 @@ class CornerAttack(Strategy):
         self.r_one_chamber_locations = [ [26,12]]
         self.l_three_chamber_locations = [[4,9]]
         self.r_three_chamber_locations = [[23,9]]
-        self.r_attack_demolisher_locations = [21,7]
-        self.r_attack_scout_location = [11,2]
-        self.l_attack_demolisher_locations = [6,7]
-        self.l_attack_scout_location = [16,2]
         self.attack_locations = [[6,7],[7,6],[8,5],[9,4],[10,3],[11,2],[12,1],[13,0],[14,0],[15,1],[16,2],[17,3],[18,4],[19,5],[20,6],[21,7]]
 
         # global variables
