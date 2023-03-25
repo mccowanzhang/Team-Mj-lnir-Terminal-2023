@@ -5,7 +5,8 @@ import warnings
 from sys import maxsize
 import json
 import strategies
-
+import sys
+import os
 
 """
 Most of the algo code you write will be in this file unless you create new
@@ -21,10 +22,7 @@ Advanced strategy tips:
 """
 tiles = []
 EDGES = []
-EDGE0 = []
-EDGE1 = []
-EDGE2 = [] 
-EDGE3 = []
+
 
 class AlgoStrategy(gamelib.AlgoCore):
     def __init__(self):
@@ -32,6 +30,20 @@ class AlgoStrategy(gamelib.AlgoCore):
         seed = random.randrange(maxsize)
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
+
+        gamelib.debug_write(os.path.abspath(os.getcwd()))
+
+        global tiles, EDGES
+        fmap = gamelib.GameMap(self.config)
+        EDGES = fmap.get_edges()
+
+        for x in range(28):
+            for y in range(28):
+                tiles.append(gamelib.Tile(x, y, [x, y] in EDGES[0] or [x, y] in EDGES[1] or
+                                          [x, y] in EDGES[2] or [x, y] in EDGES[3]))
+
+        sys.stderr.write("tiles: " + str(len(EDGES)))
+        sys.stderr.write("tiles: " + str(len(tiles)))
 
     def on_game_start(self, config):
         """ 
@@ -49,18 +61,6 @@ class AlgoStrategy(gamelib.AlgoCore):
         MP = 1
         SP = 0
 
-        global tiles, EDGES, EDGE0, EDGE1, EDGE2, EDGE3
-        fmap = gamelib.GameMap(self.config)
-        EDGES = fmap.get_edges
-        EDGE0 = fmap.get_edge_locations(fmap.TOP_RIGHT)
-        EDGE1 = fmap.get_edge_locations(fmap.TOP_LEFT)
-        EDGE2 = fmap.get_edge_locations(fmap.BOTTOM_LEFT)
-        EDGE3 = fmap.get_edge_locations(fmap.BOTTOM_RIGHT)
-
-        for x in range(28):
-            for y in range(28):
-                tiles.append(gamelib.Tile(x, y, [x, y] in [EDGES]))
-
         # This is a good place to do initial setup
         self.strategy = strategies.Strategy(config)
         self.scored_on_locations = []
@@ -73,7 +73,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         unit deployments, and transmitting your intended deployments to the
         game engine.
         """
-        game_state = gamelib.GameState(self.config, turn_state)
+        game_state = gamelib.GameState(self.config, turn_state, tiles)
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 

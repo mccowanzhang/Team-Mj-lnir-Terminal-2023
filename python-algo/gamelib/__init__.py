@@ -24,6 +24,7 @@ from .util import debug_write
 from .game_state import GameState
 from .unit import GameUnit
 from .game_map import GameMap
+from .tile import Tile
 
 __all__ = ["algocore", "game_state", "game_map", "navigation", "unit", "util", "tile"]
  
