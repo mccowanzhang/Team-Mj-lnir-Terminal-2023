@@ -78,7 +78,13 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         choose rock-paper-scissors
         """
-        return self.CornerAttack()
+        seed = random.randrange(maxsize)
+        random.seed(seed)
+        if seed % 2 == 1:
+            return strategies.CornerAttack(self.config)
+        else:
+            return strategies.CentreAttack(self.config)
+            
     
 
 

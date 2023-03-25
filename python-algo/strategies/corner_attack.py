@@ -1,4 +1,4 @@
-from strategy import Strategy
+from .strategy import Strategy
 
 class CornerAttack(Strategy):
     def __init__(self, config):
@@ -29,12 +29,12 @@ class CornerAttack(Strategy):
 
         # global variables
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP
-        WALL = Strategy.config["unitInformation"][0]["shorthand"]
-        SUPPORT = Strategy.config["unitInformation"][1]["shorthand"]
-        TURRET = Strategy.config["unitInformation"][2]["shorthand"]
-        SCOUT = Strategy.config["unitInformation"][3]["shorthand"]
-        DEMOLISHER = Strategy.config["unitInformation"][4]["shorthand"]
-        INTERCEPTOR = Strategy.config["unitInformation"][5]["shorthand"]
+        WALL = config["unitInformation"][0]["shorthand"]
+        SUPPORT = config["unitInformation"][1]["shorthand"]
+        TURRET = config["unitInformation"][2]["shorthand"]
+        SCOUT = config["unitInformation"][3]["shorthand"]
+        DEMOLISHER = config["unitInformation"][4]["shorthand"]
+        INTERCEPTOR = config["unitInformation"][5]["shorthand"]
         MP = 1
         SP = 0
 
@@ -68,10 +68,11 @@ class CornerAttack(Strategy):
 
     def attack(self, game_state, num_demolishers, num_scouts):
         if self.attack_direction == self.RIGHT:
-            game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
             game_state.attempt_spawn(DEMOLISHER, self.r_attack_demolisher_locations, num_demolishers)
             game_state.attempt_spawn(SCOUT, self.r_attack_scout_location, num_scouts)
         else: 
-            game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
             game_state.attempt_spawn(DEMOLISHER, self.l_attack_demolisher_locations, num_demolishers)
             game_state.attempt_spawn(SCOUT, self.l_attack_scout_location, num_scouts)
+
+        game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
+        game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)

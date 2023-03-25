@@ -117,3 +117,15 @@ class Strategy():
         for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
             game_state.attempt_spawn(TURRET, l)
             game_state.attempt_spawn(TURRET, r)
+
+        for l, r in zip(self.l_chamber_wall_locations, self.r_chamber_wall_locations):
+            game_state.attempt_upgrade(l)
+            game_state.attempt_upgrade( r)
+
+        for l, r in zip(self.l_navigation_wall_locations, self.r_navigation_wall_locations):
+            game_state.attempt_upgrade(l)
+            game_state.attempt_upgrade( r)
+
+        for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
+            game_state.attempt_upgrade(l)
+            game_state.attempt_upgrade(r)
