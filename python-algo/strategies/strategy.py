@@ -129,3 +129,7 @@ class Strategy():
         for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
             game_state.attempt_upgrade(l)
             game_state.attempt_upgrade(r)
+
+        for location in self.extra_extra_support_locations:
+            game_state.attempt_spawn(SUPPORT, location)
+            game_state.attempt_upgrade(location)

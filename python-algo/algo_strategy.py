@@ -33,8 +33,6 @@ class AlgoStrategy(gamelib.AlgoCore):
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
 
-        self.strategy = self.Strategy()
-
     def on_game_start(self, config):
         """ 
         Read in config and perform any initial setup here 
