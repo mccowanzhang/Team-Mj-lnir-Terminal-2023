@@ -145,18 +145,97 @@ class GameState:
                 x, y = map(int, [sx, sy])
                 hp = float(shp)
                 # This depends on RM and UP always being the last types to be processed
+                abs_location = 28 * y + x
                 if unit_type == REMOVE:
                     # Quick fix will deploy engine fix soon
                     if self.contains_stationary_unit([x,y]):
-                        self.game_map[x,y][0].pending_removal = True
+                        self.game_map[x, y][0].pending_removal = True
                 elif unit_type == UPGRADE:
                     if self.contains_stationary_unit([x,y]):
-                        self.game_map[x,y][0].upgrade()
+                        self.game_map[x, y][0].upgrade()
+
+                        if self.tiles[abs_location].unit.unit_type == "FF":
+                            self.tiles[abs_location].unit.upgrade()
+
+                        surroundings = self.tiles[abs_location].surrounding_locations_abs(
+                                        max(self.tiles[abs_location].unit.attackRange,
+                                            self.tiles[abs_location].unit.shieldRange))
+                        if self.tiles[abs_location].unit.unit_type == "DF":
+                            for x in surroundings:
+                                if player_number == 1:
+                                    self.tiles[x].update_friendly_coverage(self.tiles[abs_location].unit.damage_i)
+                                else:
+                                    self.tiles[x].update_enemy_coverage(self.tiles[abs_location].unit.damage_i)
+                                    self.warn("Upgrade DF Firewall Removal")
+                            self.tiles[abs_location].unit.upgrade()
+                            surroundings = self.tiles[abs_location].surrounding_locations_abs(
+                                                                self.tiles[abs_location].unit.attackRange)
+                            for x in surroundings:
+                                if player_number == 1:
+                                    self.tiles[x].update_friendly_coverage(self.tiles[abs_location].unit.damage_i)
+                                else:
+                                    self.tiles[x].update_enemy_coverage(unit.damage_i)
+                        elif self.tiles[abs_location].unit.unit_type == "EF":
+                            for x in surroundings:
+                                self.tiles[x].remove_shield(abs_location)
+                                self.warn("Upgrade EF Shield Removal")
+                            self.tiles[abs_location].unit.upgrade()
+                            surroundings = self.tiles[abs_location].surrounding_locations_abs(
+                                            self.tiles[abs_location].unit.shieldRange)
+                            for x in surroundings:
+                                self.tiles[x].add_shield(abs_location, self.tiles[abs_location].unit.shieldPerUnit)
+                            self.warn("Updated " + str(unit.unit_type) + " at: " + str(abs_location))
+
                 else:
                     unit = GameUnit(unit_type, self.config, player_number, hp, x, y)
                     self.game_map[x,y].append(unit)
+
                     if self.tiles:
-                        self.tiles[28 * y + x].add_unit(unit)
+                        # Update unit health if not new
+                        if self.tiles[abs_location].unit:
+                            self.tiles[abs_location].unit.health = unit.health
+                            self.warn("Updated " + str(unit.unit_type) + " health at: " + str(abs_location))
+
+                        # place new units
+                        else:
+                            self.tiles[abs_location].add_unit(unit)
+
+                            surroundings = self.tiles[abs_location].surrounding_locations_abs(max(unit.attackRange, unit.shieldRange))
+                            if unit.unit_type == "DF":
+                                for x in surroundings:
+                                    if player_number == 1:
+                                        self.tiles[x].update_friendly_coverage(unit.damage_i)
+                                    else:
+                                        self.tiles[x].update_enemy_coverage(unit.damage_i)
+                                self.warn("Firepower Updated: " + str(unit.damage_i) + " at " + str(surroundings) +
+                                          " \nFrom new turret: " + str(abs_location))
+
+                            elif unit.unit_type == "EF":
+                                for x in surroundings:
+                                    self.tiles[x].add_shield(abs_location, unit.shieldPerUnit)
+                                self.warn("Firepower Updated: " + str(unit.shieldPerUnit) + " at " + str(surroundings) +
+                                            " \nFrom new turret: " + str(abs_location))
+
+                        self.tiles[abs_location].updated = True
+
+        # Clear all destroyed units
+        if self.tiles:
+            for x in self.tiles:
+                if not x.updated and x.unit:
+                    if x.unit.unit_type == "DF":
+                        surroundings = x.surrounding_locations_abs(x.unit.attackRange)
+                        for location in surroundings:
+                            if player_number == 1:
+                                self.tiles[location].update_friendly_coverage(- x.unit.damage_i)
+                            else:
+                                self.tiles[location].update_enemy_coverage(- x.unit.damage_i)
+                        self.warn("Firepower Removed: " + str(- x.unit.damage_i))
+                    elif x.unit.unit_type == "EF":
+                        surroundings = x.surrounding_locations_abs(x.unit.shieldRange)
+                        for location in surroundings:
+                            self.tiles[location].remove_shield(x.get_location_abs())
+                        self.warn("Support Removed: " + str(surroundings))
+                    x.remove_unit()
 
     def __resource_required(self, unit_type):
         return self.SP if is_stationary(unit_type) else self.MP
