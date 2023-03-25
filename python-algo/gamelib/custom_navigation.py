@@ -281,6 +281,23 @@ class CustomPathFinder(ShortestPathFinder):
         game_units: List[GameUnit], 
         quantities: List[int],
         quadrant: int = -1):
+        """
+        Args:
+            - start_point: location of the starting point for the search, should usually on an edge
+            - game_units (List[GameUnit] || GameUnit): a list of game units that represent the types
+              if provided a single GameUnit, will cast it into a list
+            - quantities (List[int] || int): a list of quantities for each game unit in game_units
+            - quadrant (Optional[int]): the target edge that we want to reach; can be inferred from 
+              start point automatically
+        Returns:
+            - dynamic_path (List[Tuple[int, int]]): the location trajectory from start to a target edge,
+              or a self destruction point, or some point where all units got killed
+            - success (bool): true if it reaches the desired location (an edge or self destruction loc),
+              false if the units all get killed before reaching
+            - remain_quantities (List[int]): similar to `quantities` above
+            - destroyed (List[GameUnit]): the list of enemy structures getting destroyed in this process
+            - bomb (bool): whether the units have self destructed
+        """
         # handle single unit input case
         if isinstance(game_units, GameUnit):
             game_units = [game_units]
@@ -406,9 +423,9 @@ class CustomPathFinder(ShortestPathFinder):
                     return {
                         "dynamic_path": dynamic_path,
                         "success": False,
-                        "remain_quantity": None,
+                        "remain_quantities": None,
                         "destroyed": destroyed_list,
-                        "bomb": False
+                        "bombed": False
                     }
 
             # simulate editing the shortest path
@@ -443,7 +460,7 @@ class CustomPathFinder(ShortestPathFinder):
             "success": True,
             "remain_quantities": quantities,
             "destroyed": destroyed_list,
-            "bomb": bomb
+            "bombed": bomb
         }
 
     def _partial_update_shortest_path(self, destroyed_units: List[GameUnit], quadrant: int, tmp_quadrant: int = 5):
