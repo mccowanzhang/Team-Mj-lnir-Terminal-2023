@@ -2,7 +2,7 @@ from .navigation import ShortestPathFinder, Node
 from .game_state import GameState
 from .unit import GameUnit
 from .util import debug_write
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from math import ceil
 import queue, sys
 
@@ -77,20 +77,23 @@ class CustomPathFinder(ShortestPathFinder):
 
             self.static_quadrants.append(quadrant)
     
-    def calc_static_shortest_path(self, start_point: Tuple[int, int], quadrant: int = -1) \
+    def calc_static_shortest_path(self, 
+        start_point: Tuple[int, int], 
+        quadrant: int = -1, 
+        prev_direction: int = 0) \
         -> List[Tuple[int, int]]:
         # infer quadrant
         if quadrant < 0:
             quadrant = self.infer_quadrant(start_point)
             # debug_write(f"inferred quadrant is: {quadrant}")
         if not quadrant in self.static_quadrants:
-            debug_write(f"shortest path related to q:{quadrant} is not calculated yet")
-            return []
+            debug_write(f"static shortest path related to q:{quadrant} is not calculated yet")
+            return [], 0
         x, y = start_point
         start_node = self.node_map[x][y]
         # this start node cannot reach the edges on the quadrant we specify
         if not start_node.visited[quadrant]:
-            return []
+            return [], 0
         
         # calculate direction from quadrant
         if quadrant == TOP_RIGHT:
@@ -101,9 +104,9 @@ class CustomPathFinder(ShortestPathFinder):
             direction = [-1, -1]
         else:
             direction = [1, -1]
-        return self._build_path_after_bfs(start_point, quadrant, direction)
+        return self._build_path_after_bfs(start_point, quadrant, direction, prev_direction)
 
-    def calc_static_destruct_path(self, start_point: Tuple[int, int], quadrant):
+    def calc_static_destruct_path(self, start_point: Tuple[int, int], quadrant, prev_direction: int = 0):
         destruct_point = start_point
         best_idealness = self._get_idealness(start_point, quadrant)
         current = queue.Queue()
@@ -155,13 +158,13 @@ class CustomPathFinder(ShortestPathFinder):
             direction = [-1, -1]
         else:
             direction = [1, -1]
-        self._build_path_after_bfs(start_point, tmp_quadrant, direction)
+        return self._build_path_after_bfs(start_point, tmp_quadrant, direction, prev_direction)
     
-    def _build_path_after_bfs(self, start_point, quadrant, direction):
+    def _build_path_after_bfs(self, start_point, quadrant, direction, prev_direction):
         path = [start_point]
         current = start_point
         # default move direction is 
-        move_direction = 0
+        move_direction = prev_direction
 
         while not self.node_map[current[0]][current[1]].dist[quadrant] == 0:
             next_move = self._choose_next_move(current, move_direction, direction, quadrant)
@@ -172,7 +175,7 @@ class CustomPathFinder(ShortestPathFinder):
                 move_direction = self.HORIZONTAL
             path.append(next_move)
             current = next_move
-        return path
+        return path, move_direction
 
     def _get_idealness(point, quadrant):
         idealness = 0
@@ -279,13 +282,17 @@ class CustomPathFinder(ShortestPathFinder):
         # infer quadrant
         if quadrant < 0:
             quadrant = self.infer_quadrant(start_point)
+            debug_write("infered quadrant", quadrant)
         if not quadrant in self.static_quadrants:
-            debug_write(f"shortest path related to q:{quadrant} is not calculated yet")
+            debug_write(f"static shortest path related to q:{quadrant} is not calculated yet")
             return []
 
-        static_path = self.calc_static_shortest_path()
+        if not start_point:
+            start_point = (game_unit.x, game_unit.y)
+
+        static_path, last_direction = self.calc_static_shortest_path(start_point)
         if not static_path:
-            static_path = self.calc_static_destruct_path()
+            static_path, last_direction = self.calc_static_destruct_path(start_point)
 
         # this is just some num > 4 to be used for indexing in nodes
         tmp_quadrant = 5
@@ -299,17 +306,17 @@ class CustomPathFinder(ShortestPathFinder):
         i = 0
         curr_loc = static_path[i]
         dynamic_path = [curr_loc]
-        game_unit.x, game_unit.y = curr_loc
 
         shield_list: List[GameUnit] = []
         enemy_list: List[GameUnit] = []
-        destroyed_list = List[GameUnit] = []
+        attacked_map: Dict[GameUnit, int] = {}
+        destroyed_list: List[GameUnit] = []
         for loc in self.game_map:
             x, y = loc
             self.node_map[x][y].dist[tmp_quadrant] = self.node_map[x][y].dist.get(quadrant, sys.maxsize)
             self.node_map[x][y].visited[tmp_quadrant] = self.node_map[x][y].visited.get(quadrant, False)
             if self.game_state.contains_stationary_unit(loc):
-                loc_unit: GameUnit = self.game_map[loc]
+                loc_unit: GameUnit = self.game_map[loc][0]
                 # finding supports
                 if loc_unit.unit_type == "EF" and loc_unit.player_index == 0:
                     shield_list.apend(loc_unit)
@@ -333,24 +340,38 @@ class CustomPathFinder(ShortestPathFinder):
             shield_list = new_shield_list 
             # find attacker
             enemy_attacked: GameUnit = self.game_state.get_target(game_unit)
-            if enemy_attacked:
-                attacked_health = enemy_attacked.health
+            if enemy_attacked and enemy_attacked not in attacked_map:
+                attacked_map[enemy_attacked] = enemy_attacked.health
+            attacked_health = attacked_map.get(enemy_attacked, 0)
+
             enemy_attackers: List[GameUnit] = self.game_state.get_attackers(curr_loc, 0)
 
             for _ in range(unit_speed):
+                # this is calculated before attacking/attacked
+                total_damage = unit_damage * quantity
                 # simulate being attacked by enemy
-                total_health -= sum([attacker.damage_i for attacker in enemy_attackers])
-                quantity = max(0, ceil(total_health / unit_health))
-                if not quantity: # failed
+                for attacker in enemy_attackers:
+                    damage = attacker.damage_i
+                    remain_health = total_health % unit_health or unit_health
+                    if damage >= remain_health:
+                        quantity -= 1
+                        reduced_health = remain_health
+                    else:
+                        reduced_health = damage
+                    total_health -= reduced_health
+                if not quantity or total_health <= 0: # failed
                     return {
                         "dynamic_path": dynamic_path,
                         "success": False,
                         "remain_quantity": 0
                     }
                 # simulate attacking some enemies
-                if enemy_attacked:
-                    attacked_health -= unit_damage * quantity
-                    if attacked_health <= 0:
+                while total_damage > 0 and enemy_attacked:
+                    reduced_health = min(attacked_health, total_damage)
+                    total_damage -= reduced_health
+                    attacked_health -= reduced_health
+
+                    if not attacked_health: # == 0
                         if enemy_attacked in enemy_attackers:
                             enemy_attackers.remove(enemy_attacked)
                         # below are dangerous codes, be careful in editing
@@ -358,61 +379,79 @@ class CustomPathFinder(ShortestPathFinder):
                         # temporary remove the blocked status
                         self.node_map[rx][ry].blocked = False
                         # need to change the game map directly as well
-                        self.game_map.__map[rx][ry] = []
+                        self.game_map[rx, ry] = []
                         # and record this point for later restoration
                         new_destroyed_list.append(enemy_attacked)
                         enemy_attacked = self.game_state.get_target(game_unit)
-                        if enemy_attacked:
-                            attacked_health = enemy_attacked.health
+                        if enemy_attacked and enemy_attacked not in attacked_map:
+                            attacked_map[enemy_attacked] = enemy_attacked.health
+                        attacked_health = attacked_map.get(enemy_attacked, 0)
+                    attacked_map[enemy_attacked] = attacked_health
 
             # simulate editing the shortest path
             i += 1
             if new_destroyed_list:
-                self._partial_update_shortest_path(new_destroyed_list)
-                new_static_path = self.calc_static_shortest_path(curr_loc, tmp_quadrant)
+                self._partial_update_shortest_path(new_destroyed_list, quadrant=quadrant)
+                new_static_path, last_direction = self.calc_static_shortest_path(curr_loc, tmp_quadrant, last_direction)
                 if not new_static_path:
-                    new_static_path = self.calc_static_destruct_path(curr_loc, tmp_quadrant)
+                    new_static_path, last_direction = self.calc_static_destruct_path(curr_loc, tmp_quadrant, last_direction)
                 static_path[i:] = new_static_path[1:]
                 destroyed_list.extend(new_destroyed_list)
 
+            # simulate stepping one step forward
             curr_loc = static_path[i]
             dynamic_path.append(curr_loc)
+            game_unit.x, game_unit.y = curr_loc
+        
+        # restoration phase
+        for unit in destroyed_list:
+            assert unit.stationary
+            self.node_map[unit.x][unit.y].blocked = True
+            self.game_map[unit.x, unit.y] = [unit]
+        game_unit.x, game_unit.y = start_point
 
         return {
             "dynamic_path": dynamic_path,
             "success": True,
-            "remain_quantity": quantity 
+            "remain_quantity": quantity,
+            "destroyed": destroyed_list
         }
 
-    def _partial_update_shortest_path(self, destroyed_units: List[GameUnit], tmp_quadrant: int = 5):
+    def _partial_update_shortest_path(self, destroyed_units: List[GameUnit], quadrant: int, tmp_quadrant: int = 5):
         """
         Instead of redoing an entire BFS, we focus on the destroyed units only
         """
         affected_locs = [(unit.x, unit.y) for unit in destroyed_units]
+        end_points = self.end_points_dict[quadrant]
         for loc in affected_locs:
             current = queue.Queue()
-            neighbors = self._get_neighbors(loc)
-            min_dist = sys.maxsize
-            for neighbor in neighbors:
-                neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
-                if not self.game_map.in_arena_bounds(neighbor) or neighbor_node.blocked:
-                    continue
-                if neighbor_node.visited[tmp_quadrant] and neighbor_node.dist[tmp_quadrant] < min_dist:
-                    min_dist = neighbor_node.dist[tmp_quadrant]
-            if min_dist < sys.maxsize:
+            if list(loc) in end_points: # if the unblocked place is destination
                 curr_node = self.node_map[loc[0]][loc[1]]
                 curr_node.visited[tmp_quadrant] = True
-                curr_node.dist[tmp_quadrant] = min_dist + 1
+                curr_node.dist[tmp_quadrant] = 0
+            else:
+                neighbors = self._get_neighbors(loc)
+                min_dist = sys.maxsize
+                for neighbor in neighbors:
+                    neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
+                    if not self.game_map.in_arena_bounds(neighbor) or neighbor_node.blocked:
+                        continue
+                    if neighbor_node.visited[tmp_quadrant] and neighbor_node.dist[tmp_quadrant] < min_dist:
+                        min_dist = neighbor_node.dist[tmp_quadrant]
+                if min_dist < sys.maxsize:
+                    curr_node = self.node_map[loc[0]][loc[1]]
+                    curr_node.visited[tmp_quadrant] = True
+                    curr_node.dist[tmp_quadrant] = min_dist + 1
             current.put(loc)
 
             while not current.empty():
                 curr_loc = current.get()
                 curr_node = self.node_map[curr_loc[0]][curr_loc[1]]
                 for neighbor in self._get_neighbors(curr_loc):
-                    neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
-                    if not self.game_map.in_arena_bounds(neighbor) or neighbor_node.blocked:
+                    if not self.game_map.in_arena_bounds(neighbor) or self.node_map[neighbor[0]][neighbor[1]].blocked:
                         continue
                     
+                    neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
                     new_dist = curr_node.dist[tmp_quadrant] + 1
                     if not neighbor_node.visited.get(tmp_quadrant):            
                         neighbor_node.dist[tmp_quadrant] = new_dist
@@ -421,6 +460,15 @@ class CustomPathFinder(ShortestPathFinder):
                     elif new_dist < neighbor_node.dist[tmp_quadrant]:
                         neighbor_node.dist[tmp_quadrant] = new_dist
                         current.put(neighbor)
+
+        self.static_quadrants.append(tmp_quadrant)
+
+        # below is for debugging only
+        # for loc in self.game_map:
+        #     x, y = loc
+        #     if tmp_quadrant in self.node_map[x][y].visited:
+        #         if 0 not in self.node_map[x][y].visited or self.node_map[x][y].dist[0] != self.node_map[x][y].dist[tmp_quadrant]:
+        #             print(loc, "before dist:", self.node_map[x][y].dist.get(0, "max"), "after dist:", self.node_map[x][y].dist[tmp_quadrant])
 
 
 
