@@ -12,6 +12,7 @@ class Tile:
         self.is_edge = is_edge
         self.friendly_shield = {}
         self.enemy_shield = {}
+        self.updated = False
 
     def add_unit(self, unit_type):
         self.unit = unit_type
@@ -60,11 +61,11 @@ class Tile:
     def surrounding_locations(self, radius):
         locations = []
 
-        for h_distance in range(1, math.floor (radius)):
+        for h_distance in range(1, math.floor(radius)):
             locations.append([self.x - h_distance, self.y])
             locations.append([self.x + h_distance, self.y])
-        for v_distance in range(1, math.floor (radius)):
-            max_h = math.foor(math.sqrt(radius**2 - v_distance**2))
+        for v_distance in range(1, math.floor(radius)):
+            max_h = math.floor(math.sqrt(radius**2 - v_distance**2))
             for hv_distance in range (max_h):
                 locations.append([self.x - hv_distance, self.y - v_distance])
                 locations.append([self.x + hv_distance, self.y - v_distance])
@@ -74,7 +75,7 @@ class Tile:
         return locations
 
     def surrounding_locations_abs(self, radius):
-        return [location[0] * location[1] for location in self.surrounding_locations(self, radius)]
+        return [location[0] * location[1] for location in self.surrounding_locations(radius)]
 
 
 ## Defense specific class
