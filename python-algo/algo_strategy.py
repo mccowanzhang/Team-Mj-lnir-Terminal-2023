@@ -131,17 +131,20 @@ class AlgoStrategy(gamelib.AlgoCore):
             plays defenses
             """
             # TO REPLACE decide where they will attack from and defend accordingly 
-            most_likely = max(self.defend_centre, self.defend_left, self.defend_right)
+            # most_likely = max(self.defend_centre, self.defend_left, self.defend_right)
 
-            if most_likely == self.defend_centre:
-                #defend centre
-                pass 
-            elif most_likely == self.defend_left:
-                #defend left
-                pass
-            else:
-                #defend right
-                pass 
+            # if most_likely == self.defend_centre:
+            #     #defend centre
+            #     pass 
+            # elif most_likely == self.defend_left:
+            #     #defend left
+            #     pass
+            # else:
+            #     #defend right
+            #     pass 
+
+            self.bombs(game_state, self.RIGHT)
+            self.bombs(game_state, self.LEFT)
 
         def reactive_offense(self, game_state, num_demolishers, num_scouts):
             """
@@ -188,13 +191,13 @@ class AlgoStrategy(gamelib.AlgoCore):
         def __init__(self):
             super().__init__()
             # structure placements
-            self.l_turret_locations = [[6,12],[3,11]]
-            self.r_turret_locations = [[21,12],[24,11]]
+            self.l_turret_locations = [[6,12],[2,12]]
+            self.r_turret_locations = [[21,12],[25,12]]
             self.c_turret_locations = [[11,6],[16,6]]
             self.l_upgraded_wall_locations = [[0,13],[5,13]]
             self.r_upgraded_wall_locations = [ [22,13], [27,13]]
-            self.l_chamber_wall_locations = [[2,12],[3,11],[4,11],[5,10],[6,9],[6,8]]
-            self.r_chamber_wall_locations = [[25,12],[24,11],[23,11],[22,10],[21,9],[21,8]]
+            self.l_chamber_wall_locations = [[1,13],[2,12],[3,12],[4,11],[5,10],[6,9],[6,8]]
+            self.r_chamber_wall_locations = [[26,13],[25,12],[24,12],[23,11],[22,10],[21,9],[21,8]]
             self.l_navigation_wall_locations =[[5,13],[6,12],[7,11],[8,10],[9,9],[10,8],[11,7],[12,6],[13,5]]
             self.r_navigation_wall_locations =[[22,13],[21,12],[20,11],[19,10],[18,9],[17,8],[16,7],[15,6],[14,5]]
             self.upgraded_support_locations = [[13,10],[14,10],[13,9],[14,9]]
@@ -202,10 +205,10 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.r_extra_turret_locations = [[25,11],[24,12],[20,12]]
 
             # mobile placements
-            self.l_one_chamber_location = [[2,11]]
-            self.r_one_chamber_location = [ [25,11]]
-            self.l_three_chamber_locations = [[5,8]]
-            self.r_three_chamber_locations = [[5,8]]
+            self.l_one_chamber_locations = [[1,12]]
+            self.r_one_chamber_locations = [ [26,12]]
+            self.l_three_chamber_locations = [[4,9]]
+            self.r_three_chamber_locations = [[23,9]]
             self.r_attack_demolisher_locations = [21,7]
             self.r_attack_scout_location = [11,2]
             self.l_attack_demolisher_locations = [6,7]
@@ -229,17 +232,23 @@ class AlgoStrategy(gamelib.AlgoCore):
 
         def bomb_counter(self, game_state, dir):
             if dir == self.LEFT:
-                game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_location)
+                game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
             else:
-                game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_location)
+                game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
+
+        def bombs(self, game_state, dir):
+            if dir == self.LEFT:
+                game_state.attempt_spawn(INTERCEPTOR, self.l_three_chamber_locations)
+            else:
+                game_state.attempt_spawn(INTERCEPTOR, self.r_three_chamber_locations)
 
         def attack(self, game_state, num_demolishers, num_scouts):
             if self.attack_direction == self.RIGHT:
-                game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_location)
+                game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
                 game_state.attempt_spawn(DEMOLISHER, self.r_attack_demolisher_locations, num_demolishers)
                 game_state.attempt_spawn(SCOUT, self.r_attack_scout_location, num_scouts)
             else: 
-                game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_location)
+                game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
                 game_state.attempt_spawn(DEMOLISHER, self.l_attack_demolisher_locations, num_demolishers)
                 game_state.attempt_spawn(SCOUT, self.l_attack_scout_location, num_scouts)
 
