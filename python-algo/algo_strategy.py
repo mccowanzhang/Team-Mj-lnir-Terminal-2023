@@ -52,10 +52,10 @@ class AlgoStrategy(gamelib.AlgoCore):
         global tiles, EDGES, EDGE0, EDGE1, EDGE2, EDGE3
         fmap = gamelib.GameMap(self.config)
         EDGES = fmap.get_edges
-        EDGE0 = fmap.get_edge_locations(self.TOP_RIGHT)
-        EDGE1 = fmap.get_edge_locations(self.TOP_LEFT)
-        EDGE2 = fmap.get_edge_locations(self.BOTTOM_LEFT)
-        EDGE3 = fmap.get_edge_locations(self.BOTTOM_RIGHT)
+        EDGE0 = fmap.get_edge_locations(fmap.TOP_RIGHT)
+        EDGE1 = fmap.get_edge_locations(fmap.TOP_LEFT)
+        EDGE2 = fmap.get_edge_locations(fmap.BOTTOM_LEFT)
+        EDGE3 = fmap.get_edge_locations(fmap.BOTTOM_RIGHT)
 
         for x in range(28):
             for y in range(28):
