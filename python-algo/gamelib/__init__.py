@@ -25,6 +25,7 @@ from .game_state import GameState
 from .unit import GameUnit
 from .game_map import GameMap
 from .tile import Tile
+from .custom_navigation import CustomPathFinder
 
-__all__ = ["algocore", "game_state", "game_map", "navigation", "unit", "util", "tile"]
+__all__ = ["algocore", "game_state", "game_map", "navigation", "unit", "util", "tile", "custom_naviagation"]
  

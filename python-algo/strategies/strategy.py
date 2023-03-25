@@ -1,3 +1,5 @@
+import gamelib
+import math
 
 class Strategy():
     def __init__(self, config):
@@ -43,11 +45,29 @@ class Strategy():
 
         # TO REPLACE analyze if we can send a strong enough attack 
         # and what number of each unit
-        attack_turn = game_state.get_resource(game_state.MP) > 10
-        demolishers = 2
-        scouts = 2
+        total_mp = math.floor(game_state.get_resource(game_state.MP))
+        attack_combinations = [(num_scouts, num_demolishers) 
+                               for num_scouts in range(total_mp - 1) 
+                               for num_demolishers in range(total_mp - 1) 
+                               if num_scouts + num_demolishers * 3 <= total_mp - 2]
+        best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "damage": 0}
+        path_finder = gamelib.CustomPathFinder(self.config)
+        path_finder.initialize_map(game_state)
+        path_finder.prep_static_shortest_path()
+        for combo in attack_combinations:
+            for location in self.attack_locations:
+                attack = path_finder.calc_dynamic_shortest_path(location, gamelib.GameUnit(DEMOLISHER, self.config, 0, 5, location[0], location[1]), combo[1])
+                if attack["remain_quantity"] > best_attack["damage"]:
+                    best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": attack["remain_quantity"]}
+
+        
+        # attack_turn = game_state.get_resource(game_state.MP) > 10
+        # demolishers = 2
+        # scouts = 2
+
+        attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
         if attack_turn:
-            self.reactive_offense(game_state, demolishers, scouts)
+            self.reactive_offense(game_state, best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"])
 
         # how we spend struct points
         extra_struct_points = True
@@ -78,12 +98,15 @@ class Strategy():
         self.bombs(game_state, self.RIGHT)
         self.bombs(game_state, self.LEFT)
 
-    def reactive_offense(self, game_state, num_demolishers, num_scouts):
+    def reactive_offense(self, game_state, num_scouts, num_demolishers, location=[6,7]):
         """
         plays offense
         """
-        # where to attack from
-        self.attack(game_state, num_demolishers, num_scouts)
+        game_state.attempt_spawn(DEMOLISHER, location, num_demolishers)
+        game_state.attempt_spawn(SCOUT, location, num_scouts)
+
+        game_state.attempt_spawn(INTERCEPTOR, self.l_one_chamber_locations)
+        game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
 
     def build_up_base(self, game_state):
 
