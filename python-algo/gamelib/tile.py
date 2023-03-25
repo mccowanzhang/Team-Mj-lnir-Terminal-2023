@@ -3,7 +3,7 @@ from .unit import GameUnit
 
 
 class Tile:
-    def __init__(self, x, y, is_edge):
+    def __init__(self, x, y, is_edge=False, is_valid=False):
         self.x = x
         self.y = y
         self.unit = None
@@ -13,6 +13,7 @@ class Tile:
         self.friendly_shield = {}
         self.enemy_shield = {}
         self.updated = False
+        self.is_valid = is_valid
 
     def add_unit(self, unit_type):
         self.unit = unit_type
