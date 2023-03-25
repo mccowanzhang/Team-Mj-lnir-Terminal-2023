@@ -38,7 +38,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         for x in range(28):
             for y in range(28):
                 tiles.append(gamelib.Tile(x, y, [x, y] in EDGES[0] or [x, y] in EDGES[1] or
-                                          [x, y] in EDGES[2] or [x, y] in EDGES[3]), fmap.in_arena_bounds([x, y]))
+                                          [x, y] in EDGES[2] or [x, y] in EDGES[3], fmap.in_arena_bounds([x, y])))
 
 
     def on_game_start(self, config):
