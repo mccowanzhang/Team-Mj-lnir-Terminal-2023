@@ -92,7 +92,7 @@ class CustomPathFinder(ShortestPathFinder):
         x, y = start_point
         start_node = self.node_map[x][y]
         # this start node cannot reach the edges on the quadrant we specify
-        if not start_node.visited[quadrant]:
+        if not start_node.visited.get(quadrant):
             return [], 0
         
         # calculate direction from quadrant
@@ -112,6 +112,8 @@ class CustomPathFinder(ShortestPathFinder):
         current = queue.Queue()
         # dict holding visited node
         visited = set()
+        # enforce it as a tuple, not list (so it's hashable)
+        start_point = tuple(start_point)
         current.put(start_point)
         visited.add(start_point)
         while not current.empty():
@@ -177,7 +179,7 @@ class CustomPathFinder(ShortestPathFinder):
             current = next_move
         return path, move_direction
 
-    def _get_idealness(point, quadrant):
+    def _get_idealness(self, point, quadrant):
         idealness = 0
         if quadrant in [0, 1]:
             idealness += 28 * point[1]
@@ -203,7 +205,7 @@ class CustomPathFinder(ShortestPathFinder):
 
             new_best = False
             x, y = neighbor
-            current_dist = self.node_map[x][y].dist[quadrant]
+            current_dist = self.node_map[x][y].dist.get(quadrant, sys.maxsize)
 
             #Filter by pathlength
             if current_dist > best_dist:
@@ -292,7 +294,7 @@ class CustomPathFinder(ShortestPathFinder):
 
         static_path, last_direction = self.calc_static_shortest_path(start_point)
         if not static_path:
-            static_path, last_direction = self.calc_static_destruct_path(start_point)
+            static_path, last_direction = self.calc_static_destruct_path(start_point, quadrant)
 
         # this is just some num > 4 to be used for indexing in nodes
         tmp_quadrant = 5
@@ -319,7 +321,7 @@ class CustomPathFinder(ShortestPathFinder):
                 loc_unit: GameUnit = self.game_map[loc][0]
                 # finding supports
                 if loc_unit.unit_type == "EF" and loc_unit.player_index == 0:
-                    shield_list.apend(loc_unit)
+                    shield_list.append(loc_unit)
                 # finding turrets
                 elif loc_unit.unit_type == "DF" and loc_unit.player_index == 1:
                     enemy_list.append(loc_unit)
@@ -438,10 +440,10 @@ class CustomPathFinder(ShortestPathFinder):
                 neighbors = self._get_neighbors(loc)
                 min_dist = sys.maxsize
                 for neighbor in neighbors:
-                    neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
-                    if not self.game_map.in_arena_bounds(neighbor) or neighbor_node.blocked:
+                    if not self.game_map.in_arena_bounds(neighbor):
                         continue
-                    if neighbor_node.visited[tmp_quadrant] and neighbor_node.dist[tmp_quadrant] < min_dist:
+                    neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
+                    if not neighbor_node.blocked and neighbor_node.visited[tmp_quadrant] and neighbor_node.dist[tmp_quadrant] < min_dist:
                         min_dist = neighbor_node.dist[tmp_quadrant]
                 if min_dist < sys.maxsize:
                     curr_node = self.node_map[loc[0]][loc[1]]
@@ -476,5 +478,3 @@ class CustomPathFinder(ShortestPathFinder):
         #             print(loc, "before dist:", self.node_map[x][y].dist.get(0, "max"), "after dist:", self.node_map[x][y].dist[tmp_quadrant])
 
 
-
-        

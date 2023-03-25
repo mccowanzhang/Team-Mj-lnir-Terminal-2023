@@ -59,7 +59,6 @@ class Strategy():
                 attack = path_finder.calc_dynamic_shortest_path(location, gamelib.GameUnit(DEMOLISHER, self.config, 0, 5, location[0], location[1]), combo[1])
                 if attack["remain_quantity"] > best_attack["damage"]:
                     best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": attack["remain_quantity"]}
-
         
         # attack_turn = game_state.get_resource(game_state.MP) > 10
         # demolishers = 2
@@ -143,11 +142,11 @@ class Strategy():
 
         for l, r in zip(self.l_chamber_wall_locations, self.r_chamber_wall_locations):
             game_state.attempt_upgrade(l)
-            game_state.attempt_upgrade( r)
+            game_state.attempt_upgrade(r)
 
         for l, r in zip(self.l_navigation_wall_locations, self.r_navigation_wall_locations):
             game_state.attempt_upgrade(l)
-            game_state.attempt_upgrade( r)
+            game_state.attempt_upgrade(r)
 
         for l, r in zip(self.l_extra_turret_locations, self.r_extra_turret_locations):
             game_state.attempt_upgrade(l)
@@ -156,3 +155,4 @@ class Strategy():
         for location in self.extra_extra_support_locations:
             game_state.attempt_spawn(SUPPORT, location)
             game_state.attempt_upgrade(location)
+
