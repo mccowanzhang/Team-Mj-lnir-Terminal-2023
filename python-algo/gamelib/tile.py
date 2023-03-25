@@ -55,6 +55,7 @@ class Tile:
     def get_location_abs(self):
         return 28 * self.y + self.x
 
+
     def surrounding_locations(self, radius):
         locations = []
 
@@ -82,8 +83,6 @@ class FriendlyTile(Tile):
         self.pathing = False
 
 
-
-
 ## Offense and Defense Prediction
 class EnemyTile(Tile):
     def __init__(self, x, y, is_edge):
@@ -92,7 +91,5 @@ class EnemyTile(Tile):
 
     def round_history(self, unit_type):
         self.unit_history.append(unit_type)
-
-
 
 
