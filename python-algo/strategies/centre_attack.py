@@ -32,7 +32,9 @@ class CentreAttack(Strategy):
         self.r_one_chamber_locations = [[24,10]]
         self.l_three_chamber_locations = [[5,8]]
         self.r_three_chamber_locations = [[22,8]]
-        self.attack_locations = [[6,7],[7,6],[8,5],[9,4],[10,3],[11,2],[12,1],[13,0],[14,0],[15,1],[16,2],[17,3],[18,4],[19,5],[20,6],[21,7]]
+        self.l_five_chamber_locations = [[6,7]]
+        self.r_five_chamber_locations = [[21,7]]
+        self.attack_locations = [[7,6],[8,5],[9,4],[10,3],[11,2],[12,1],[13,0],[14,0],[15,1],[16,2],[17,3],[18,4],[19,5],[20,6]]
 
         # global variables
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP

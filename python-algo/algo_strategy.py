@@ -37,6 +37,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         global tiles, EDGES
         fmap = gamelib.GameMap(self.config)
         EDGES = fmap.get_edges()
+        
 
         for x in range(28):
             for y in range(28):
@@ -94,7 +95,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.strategy = self.decide_strategy(game_state)
             self.strategy.opener(game_state)
         else:
-            self.strategy.play_turn(game_state, self.scored_on_locations, tiles)
+            self.strategy.play_turn(game_state, self.scored_on_locations, tiles, mp_used)
 
         game_state.submit_turn()
 

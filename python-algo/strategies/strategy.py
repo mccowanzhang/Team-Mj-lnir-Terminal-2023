@@ -21,8 +21,8 @@ class Strategy():
         self.attack_direction = 0
         self.EDGES = EDGES
         self.tiles = tiles
-        gamelib.debug_write("passed in: " + str(self.EDGES))
-        gamelib.debug_write("strategy: " + str(self.EDGES))
+        # gamelib.debug_write("passed in: " + str(self.EDGES))
+        # gamelib.debug_write("strategy: " + str(self.EDGES))
 
         # global variables
         self.config = config
@@ -40,13 +40,14 @@ class Strategy():
 
     def static_map(self, game_state, path_finder):
         list_of_paths = []
-        gamelib.debug_write(self.EDGES)
+        # gamelib.debug_write(self.EDGES)
         valid_spawns = [[x, y] for [x, y] in (self.EDGES[0] + self.EDGES[1]) if not self.tiles[28 * y + x].unit]
         for spawn in valid_spawns:
             paths, _ = path_finder.calc_static_shortest_path(spawn)
             list_of_paths.append(paths)
 
-        self.reachable_map = [list(t) for t in list((itertools.zip_longest(*list_of_paths, fillvalue=None)))]
+        self.reachable_map = [list(filter(None, x)) for x in list((itertools.zip_longest(*list_of_paths, fillvalue=[])))]
+        # gamelib.debug_write(self.reachable_map)
 
     def calc_delays(self):
         left_tower_kill = False
@@ -85,7 +86,7 @@ class Strategy():
 
         return target_step, left_tower_kill, right_tower_kill
 
-    def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles):
+    def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles, mp_used):
         """
         decision making
         """
