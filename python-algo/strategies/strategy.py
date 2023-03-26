@@ -69,6 +69,7 @@ class Strategy():
                 if kill:
                     for s_lists in new_list:
                         s_lists.pop(location)
+            target_step += 2
 
         return target_step, left_tower_kill, right_tower_kill
 
