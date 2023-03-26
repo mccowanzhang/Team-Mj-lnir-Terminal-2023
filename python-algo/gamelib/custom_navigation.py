@@ -364,7 +364,7 @@ class CustomPathFinder(ShortestPathFinder):
                     shield_list.append(loc_unit)
 
         # safe check that handles cases like (1, 2) == [1, 2]
-        while i != len(static_path):
+        while i < len(static_path):
             # receive shield
             new_shield_list = []
             new_destroyed_list = []
@@ -453,9 +453,10 @@ class CustomPathFinder(ShortestPathFinder):
                 destroyed_list.extend(new_destroyed_list)
 
             # simulate stepping one step forward
-            curr_loc = static_path[i]
-            dynamic_path.append(curr_loc)
-            game_units[0].x, game_units[0].y = curr_loc
+            if i < len(static_path):
+                curr_loc = static_path[i]
+                dynamic_path.append(curr_loc)
+                game_units[0].x, game_units[0].y = curr_loc
 
         # judge whether it reaches an edge or self-destructed
         bomb = list(dynamic_path[-1]) not in self.end_points_dict.get(quadrant, [])
