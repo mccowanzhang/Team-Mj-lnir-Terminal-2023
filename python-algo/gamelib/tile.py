@@ -78,7 +78,7 @@ class Tile:
                 locations.append([self.x + hv_distance, self.y + v_distance])
 
         final_locations = [location for location in locations if
-                           map.in_arena_bounds(location)]
+                           self.map.in_arena_bounds(location)]
 
         return final_locations
 
