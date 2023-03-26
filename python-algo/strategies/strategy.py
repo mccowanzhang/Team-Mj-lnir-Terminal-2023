@@ -56,7 +56,7 @@ class Strategy():
         target_step = 1
         new_list = self.reachable_map.copy()
         while target_step < 6 and len(new_list[target_step * 4 - 1]) > 0:
-            sub_list = new_list[target_step]
+            sub_list = new_list[target_step * 4 - 1]
             for location in range(len(sub_list)):
                 kill = False
                 if sub_list[location][1] <= 18:
