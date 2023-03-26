@@ -58,7 +58,7 @@ class Strategy():
         attack_combinations = [[num_scouts, num_demolishers] 
                                for num_scouts in range(total_mp) 
                                for num_demolishers in range(total_mp) 
-                               if num_scouts + num_demolishers * 3 <= total_mp - 2]
+                               if num_scouts + num_demolishers * 3 <= total_mp - 2 and num_scouts >= 0 and num_demolishers >= 0]
         best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "damage": 0}
         path_finder = gamelib.CustomPathFinder(self.config)
         path_finder.initialize_map(game_state)
