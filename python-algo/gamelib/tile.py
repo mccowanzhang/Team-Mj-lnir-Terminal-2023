@@ -69,14 +69,15 @@ class Tile:
             locations.append([self.x - h_distance, self.y])
             locations.append([self.x + h_distance, self.y])
         for v_distance in range(1, math.floor(radius)):
-            max_h = math.floor(math.sqrt(radius**2 - v_distance**2))
+            max_h = math.floor(math.sqrt(radius ** 2 - v_distance ** 2))
             for hv_distance in range(max_h):
                 locations.append([self.x - hv_distance, self.y - v_distance])
                 locations.append([self.x + hv_distance, self.y - v_distance])
                 locations.append([self.x - hv_distance, self.y + v_distance])
                 locations.append([self.x + hv_distance, self.y + v_distance])
 
-        final_locations = [location for location in self.surrounding_locations(radius) if GameMap.in_arena_bounds(location)]
+        final_locations = [location for location in locations if
+                           GameMap.in_arena_bounds(location)]
 
         return final_locations
 
@@ -84,14 +85,14 @@ class Tile:
         return [location[0] + location[1] * 28 for location in self.surrounding_locations(radius)]
 
 
-## Defense specific class
+# Defense specific class
 class FriendlyTile(Tile):
     def __init__(self, x, y, is_edge):
         super().__init__(x, y, is_edge)
         self.pathing = False
 
 
-## Offense and Defense Prediction
+# Offense and Defense Prediction
 class EnemyTile(Tile):
     def __init__(self, x, y, is_edge):
         super().__init__(x, y, is_edge)
@@ -99,5 +100,3 @@ class EnemyTile(Tile):
 
     def round_history(self, unit_type):
         self.unit_history.append(unit_type)
-
-
