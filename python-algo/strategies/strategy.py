@@ -48,16 +48,56 @@ class Strategy():
 
         self.reachable_map = [list(filter(None, x)) for x in list((itertools.zip_longest(*list_of_paths, fillvalue=[])))]
 
+    def calc_delays(self):
+        left_tower_kill = False
+        right_tower_kill = False
+
+        target_step = 1
+        new_list = self.reachable_map.copy()
+        while target_step < 6 and len(new_list[target_step * 4 - 1]) > 0:
+            sub_list = new_list[target_step * 4 - 1]
+            for location in range(len(sub_list)):
+                kill = False
+                if sub_list[location][1] <= 18:
+                    if sub_list[location[0]] <= 11:
+                        left_tower_kill = True
+                        kill = True
+                    if sub_list[location[1]] >= 16:
+                        right_tower_kill = True
+                        kill = True
+
+                if kill:
+                    for s_lists in new_list:
+                        s_lists.pop(location)
+            target_step += 2
+
+        return target_step, left_tower_kill, right_tower_kill
+
     def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles):
         """
         decision making
         """
-        # analyze map to update strategy 
+       # analyze map to update strategy 
+        self.path_finder.initialize_map(game_state)
+        self.path_finder.prep_static_shortest_path()
+        self.static_map(game_state, self.path_finder)
+
         defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
         if defense_turn:
-            num_bombs = max(1 + game_state.turn_number // 30, 3)
-            self.bombs(game_state, self.RIGHT, num_bombs)
-            self.bombs(game_state, self.LEFT, num_bombs)
+            num_bombs = min(1 + game_state.turn_number // 25, 3)
+            if game_state.turn_number > 10:
+                analysis = self.calc_delays()
+                if analysis[1]:
+                    if analysis[0] > 3:
+                        self.deploy_five_chamber(game_state, self.LEFT, num_bombs)
+                    self.deploy_three_chamber(game_state, self.LEFT, num_bombs)
+                if analysis[2]:
+                    if analysis[0] > 3:
+                        self.deploy_five_chamber(game_state, self.RIGHT, num_bombs)
+                    self.deploy_three_chamber(game_state, self.RIGHT, num_bombs)
+            else: 
+                self.deploy_three_chamber(game_state, self.RIGHT, num_bombs)
+                self.deploy_three_chamber(game_state, self.LEFT, num_bombs)
 
         if len(scored_on_locations) > 0:
             x = scored_on_locations[len(scored_on_locations) - 1][0]
@@ -78,9 +118,7 @@ class Strategy():
         total_mp = math.floor(game_state.get_resource(game_state.MP))
         # attack_combinations = [[total_mp -2 ,0], [0, (total_mp - 2) // 3], [min(total_mp - (total_mp - 2) // 3,0),(total_mp - 2) // 3]]
         # best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "score": 0, "ends_game": False}
-        self.path_finder.initialize_map(game_state)
-        self.path_finder.prep_static_shortest_path()
-        self.static_map(game_state, self.path_finder)
+       
         # units = [gamelib.GameUnit(SCOUT, self.config, 0, None), 
         #         gamelib.GameUnit(DEMOLISHER, self.config, 0, None)]
         # for combo in attack_combinations:
@@ -107,7 +145,7 @@ class Strategy():
             else:
                 right_defense += tile.enemy_coverage
         num_scouts = 2
-        num_demolishers = 2 + game_state.turn_number // 20
+        num_demolishers = 2 + game_state.turn_number // 12
         best_attack = {"num_scouts": num_scouts, "num_demolisher": num_demolishers, "location": [11,2] if left_defense >= right_defense else [16,2], "damage": 0}
         if total_mp > num_scouts + num_demolishers * 3 + 2:
         # if attack_turn:
