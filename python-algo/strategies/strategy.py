@@ -60,7 +60,7 @@ class Strategy():
             for location in range(len(sub_list)):
                 kill = False
                 if sub_list[location][1] <= 18:
-                    if location[0] <= 11:
+                    if sub_list[location[0]] <= 11:
                         left_tower_kill = True
                         kill = True
                     if sub_list[location[1]] >= 16:
