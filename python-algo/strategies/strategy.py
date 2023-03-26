@@ -167,7 +167,7 @@ class Strategy():
             else:
                 right_defense += tile.enemy_coverage
         num_scouts = 2
-        num_demolishers = min(2 + game_state.turn_number // 18, 6)
+        num_demolishers = min(2 + game_state.turn_number // 18, 5)
         best_attack = {"num_scouts": num_scouts, "num_demolisher": num_demolishers, "location": [13,0] if left_defense >= right_defense else [14,0], "damage": 0}
         if total_mp > num_scouts + (num_demolishers * 3) + 2:
         # if attack_turn:
