@@ -301,6 +301,8 @@ class CustomPathFinder(ShortestPathFinder):
               false if the units all get killed before reaching
             - remain_quantities (List[int]): similar to `quantities` above
             - destroyed (List[GameUnit]): the list of enemy structures getting destroyed in this process
+            - structure_map (Dict[GameUnit, int]): the health for enemy structures that have been attacked 
+              at least once. Can be seen as a superset of `destroyed`.
             - bomb (bool): whether the units have self destructed
         """
         # handle single unit input case
@@ -432,6 +434,7 @@ class CustomPathFinder(ShortestPathFinder):
                         "success": False,
                         "remain_quantities": [0],
                         "destroyed": destroyed_list,
+                        "structure_map": attacked_map,
                         "bombed": False
                     }
 
@@ -482,6 +485,7 @@ class CustomPathFinder(ShortestPathFinder):
             "success": True,
             "remain_quantities": quantities,
             "destroyed": destroyed_list,
+            "structure_map": attacked_map,
             "bombed": bomb
         }
 
