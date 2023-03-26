@@ -159,7 +159,7 @@ class GameState:
                                             self.tiles[abs_location].unit.shieldRange))
                         if self.tiles[abs_location].unit.unit_type == "DF":
                             for x in surroundings:
-                                if player_number == 1:
+                                if player_number == 0:
                                     self.tiles[x].update_friendly_coverage(self.tiles[abs_location].unit.damage_i)
                                 else:
                                     self.tiles[x].update_enemy_coverage(self.tiles[abs_location].unit.damage_i)
@@ -167,7 +167,7 @@ class GameState:
                             surroundings = self.tiles[abs_location].surrounding_locations_abs(
                                                                 self.tiles[abs_location].unit.attackRange)
                             for x in surroundings:
-                                if player_number == 1:
+                                if player_number == 0:
                                     self.tiles[x].update_friendly_coverage(self.tiles[abs_location].unit.damage_i)
                                 else:
                                     self.tiles[x].update_enemy_coverage(unit.damage_i)
@@ -199,13 +199,13 @@ class GameState:
                             surroundings = self.tiles[abs_location].surrounding_locations_abs(max(unit.attackRange, unit.shieldRange))
                             if unit.unit_type == "DF":
                                 for x in surroundings:
-                                    if player_number == 1:
+                                    if player_number == 0:
                                         self.tiles[x].update_friendly_coverage(unit.damage_i)
                                     else:
                                         self.tiles[x].update_enemy_coverage(unit.damage_i)
                                 self.warn("Firepower Updated: " + str(unit.damage_i) + " at " + str(surroundings) +
                                           " \nFrom new turret: " + str(abs_location))
-                                self.warn("Firepower at " + str(surroundings[0]) + ": " + str(self.tiles[surroundings[0]].get_friendly_coverage()))
+                                self.warn("Firepower at " + str(surroundings[0]) + ": " + str(self.tiles[surroundings[0]].get_enemy_coverage()))
 
                             elif unit.unit_type == "EF":
                                 for x in surroundings:
@@ -222,7 +222,7 @@ class GameState:
                     if x.unit.unit_type == "DF":
                         surroundings = x.surrounding_locations_abs(x.unit.attackRange)
                         for location in surroundings:
-                            if player_number == 1:
+                            if player_number == 0:
                                 self.tiles[location].update_friendly_coverage(- x.unit.damage_i)
                             else:
                                 self.tiles[location].update_enemy_coverage(- x.unit.damage_i)
