@@ -97,13 +97,14 @@ class Strategy():
         total = sum(mp_used)
         average = total // len(mp_used)
         attacks = []
+        enemy_mp = game_state.get_resource(game_state.MP, 1)
         for used in mp_used:
             if used >= average + 2:
                 attacks.append(used)
         if len(attacks) > 2:
-            defense_turn = game_state.get_resource(game_state.MP, 1) >= (sum(attacks) // len(attacks)) - 2
+            defense_turn = enemy_mp >= (sum(attacks) // len(attacks)) - 2 or enemy_mp > game_state.my_health + 2
         else: 
-            defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
+            defense_turn = enemy_mp >= 8
 
         if defense_turn:
             num_bombs = min(1 + game_state.turn_number // 30, 2)
