@@ -68,8 +68,18 @@ class CentreAttack(Strategy):
         else:
             game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
 
-    def bombs(self, game_state, dir, num = 1):
+    def deploy_three_chamber(self, game_state, dir, num):
         if dir == self.LEFT:
             game_state.attempt_spawn(INTERCEPTOR, self.l_three_chamber_locations, num)
         else:
             game_state.attempt_spawn(INTERCEPTOR, self.r_three_chamber_locations, num)
+
+    def deploy_five_chamber(self,game_state, dir, num):
+        if dir == self.LEFT:
+            game_state.attempt_remove([6,8])
+            game_state.attempt_spawn(WALL, [[7,8],[7,7]])
+            game_state.attempt_spawn(INTERCEPTOR, self.l_five_chamber_locations, num)
+        else:
+            game_state.attempt_remove([21,8])
+            game_state.attempt_spawn(WALL, [[20,8],[20,7]])
+            game_state.attempt_spawn(INTERCEPTOR, self.r_five_chamber_locations, num)
