@@ -1,19 +1,21 @@
 import math
 from .unit import GameUnit
+from .game_map import GameMap
 
 
 class Tile:
-    def __init__(self, x, y, is_edge=False, is_valid=False):
+    def __init__(self, x, y, fmap, is_edge=False, is_valid=False):
         self.x = x
         self.y = y
         self.unit = None
         self.enemy_coverage = 0
         self.friendly_coverage = 0
         self.is_edge = is_edge
+        self.is_valid = is_valid
+        self.fmap = fmap
         self.friendly_shield = {}
         self.enemy_shield = {}
         self.updated = False
-        self.is_valid = is_valid
 
     def add_unit(self, unit_type):
         self.unit = unit_type
@@ -68,27 +70,30 @@ class Tile:
             locations.append([self.x - h_distance, self.y])
             locations.append([self.x + h_distance, self.y])
         for v_distance in range(1, math.floor(radius)):
-            max_h = math.floor(math.sqrt(radius**2 - v_distance**2))
-            for hv_distance in range (max_h):
+            max_h = math.floor(math.sqrt(radius ** 2 - v_distance ** 2))
+            for hv_distance in range(max_h):
                 locations.append([self.x - hv_distance, self.y - v_distance])
                 locations.append([self.x + hv_distance, self.y - v_distance])
                 locations.append([self.x - hv_distance, self.y + v_distance])
                 locations.append([self.x + hv_distance, self.y + v_distance])
 
-        return locations
+        final_locations = [location for location in locations if
+                           self.fmap.in_arena_bounds(location)]
+
+        return final_locations
 
     def surrounding_locations_abs(self, radius):
         return [location[0] + location[1] * 28 for location in self.surrounding_locations(radius)]
 
 
-## Defense specific class
+# Defense specific class
 class FriendlyTile(Tile):
     def __init__(self, x, y, is_edge):
         super().__init__(x, y, is_edge)
         self.pathing = False
 
 
-## Offense and Defense Prediction
+# Offense and Defense Prediction
 class EnemyTile(Tile):
     def __init__(self, x, y, is_edge):
         super().__init__(x, y, is_edge)
@@ -96,5 +101,3 @@ class EnemyTile(Tile):
 
     def round_history(self, unit_type):
         self.unit_history.append(unit_type)
-
-
