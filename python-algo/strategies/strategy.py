@@ -95,7 +95,7 @@ class Strategy():
 
         defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
         if defense_turn:
-            num_bombs = min(1 + game_state.turn_number // 25, 3)
+            num_bombs = min(1 + game_state.turn_number // 30, 2)
             if game_state.turn_number > 10:
                 analysis = self.calc_delays()
                 if analysis[1]:
@@ -156,7 +156,7 @@ class Strategy():
             else:
                 right_defense += tile.enemy_coverage
         num_scouts = 2
-        num_demolishers = 2 + game_state.turn_number // 12
+        num_demolishers = 2 + game_state.turn_number // 18
         best_attack = {"num_scouts": num_scouts, "num_demolisher": num_demolishers, "location": [11,2] if left_defense >= right_defense else [16,2], "damage": 0}
         if total_mp > num_scouts + num_demolishers * 3 + 2:
         # if attack_turn:
