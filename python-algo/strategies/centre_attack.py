@@ -81,7 +81,13 @@ class CentreAttack(Strategy):
             game_state.attempt_remove([6,8])
             game_state.attempt_spawn(WALL, [[7,8],[7,7]])
             game_state.attempt_spawn(INTERCEPTOR, self.l_five_chamber_locations, num)
+            self.l_chamber_wall_locations = [location for location in self.l_chamber_wall_locations if location != [6,8]]
+            self.l_chamber_wall_locations.append([7,8])
+            self.l_chamber_wall_locations.append([7,7])
         else:
             game_state.attempt_remove([21,8])
             game_state.attempt_spawn(WALL, [[20,8],[20,7]])
             game_state.attempt_spawn(INTERCEPTOR, self.r_five_chamber_locations, num)
+            self.r_chamber_wall_locations = [location for location in self.r_chamber_wall_locations if location != [21,8]]
+            self.r_chamber_wall_locations.append([20,8])
+            self.r_chamber_wall_locations.append([20,7])
