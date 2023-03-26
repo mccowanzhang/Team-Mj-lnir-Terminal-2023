@@ -167,9 +167,9 @@ class Strategy():
             else:
                 right_defense += tile.enemy_coverage
         num_scouts = 2
-        num_demolishers = max(2 + game_state.turn_number // 20, 5)
+        num_demolishers = min(2 + game_state.turn_number // 18, 6)
         best_attack = {"num_scouts": num_scouts, "num_demolisher": num_demolishers, "location": [13,0] if left_defense >= right_defense else [14,0], "damage": 0}
-        if total_mp > num_scouts + (num_demolishers * 3):
+        if total_mp > num_scouts + (num_demolishers * 3) + 2:
         # if attack_turn:
             # gamelib.debug_write("num scouts: {} num demolish: {} location: {} score {} ends game {}".format(best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"], best_attack["score"], best_attack["ends_game"]))
             self.reactive_offense(game_state, best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"])
