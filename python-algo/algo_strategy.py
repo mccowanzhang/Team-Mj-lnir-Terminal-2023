@@ -31,6 +31,9 @@ class AlgoStrategy(gamelib.AlgoCore):
         random.seed(seed)
         gamelib.debug_write('Random seed: {}'.format(seed))
 
+        self.enemy_mp = []
+        self.enemy_mp_used = []
+
         global tiles, EDGES
         fmap = gamelib.GameMap(self.config)
         EDGES = fmap.get_edges()
@@ -74,6 +77,16 @@ class AlgoStrategy(gamelib.AlgoCore):
         game_state = gamelib.GameState(self.config, turn_state, tiles)
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
+
+        curr_enemy_mp = game_state._player_resources[1]["MP"]
+        if game_state.turn_number > 0:
+            new_mp = 5 + game_state.turn_number // 10
+            prev_enemy_mp = self.enemy_mp[-1]
+            mp_used = round(prev_enemy_mp - (curr_enemy_mp - new_mp) / 0.75)
+            # mp used in the last round
+            self.enemy_mp_used.append(mp_used)
+            gamelib.debug_write("****** mp_used", mp_used)
+        self.enemy_mp.append(curr_enemy_mp)
 
         if game_state.turn_number == 0:
             self.strategy.round_one(game_state)

@@ -47,7 +47,6 @@ class Strategy():
             list_of_paths.append(paths)
 
         self.reachable_map = [list(filter(None, x)) for x in list((itertools.zip_longest(*list_of_paths, fillvalue=[])))]
-        gamelib.debug_write(self.reachable_map)
 
     def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles):
         """
