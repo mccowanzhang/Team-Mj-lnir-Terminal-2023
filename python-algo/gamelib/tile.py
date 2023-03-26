@@ -78,7 +78,7 @@ class Tile:
         return locations
 
     def surrounding_locations_abs(self, radius):
-        return [location[0] * location[1] for location in self.surrounding_locations(radius)]
+        return [location[0] + location[1] * 28 for location in self.surrounding_locations(radius)]
 
 
 ## Defense specific class

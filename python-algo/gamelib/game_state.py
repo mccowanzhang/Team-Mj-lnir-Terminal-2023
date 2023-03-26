@@ -205,6 +205,7 @@ class GameState:
                                         self.tiles[x].update_enemy_coverage(unit.damage_i)
                                 self.warn("Firepower Updated: " + str(unit.damage_i) + " at " + str(surroundings) +
                                           " \nFrom new turret: " + str(abs_location))
+                                self.warn("Firepower at " + str(surroundings[0]) + ": " + str(self.tiles[surroundings[0]].get_friendly_coverage()))
 
                             elif unit.unit_type == "EF":
                                 for x in surroundings:

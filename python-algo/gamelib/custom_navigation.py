@@ -315,7 +315,7 @@ class CustomPathFinder(ShortestPathFinder):
         # infer quadrant
         if quadrant < 0:
             quadrant = self.infer_quadrant(start_point)
-            debug_write("infered quadrant", quadrant)
+            # debug_write("infered quadrant", quadrant)
         if not quadrant in self.static_quadrants:
             debug_write(f"static shortest path related to q:{quadrant} is not calculated yet")
             return []
