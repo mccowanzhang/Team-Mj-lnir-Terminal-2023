@@ -423,8 +423,8 @@ class CustomPathFinder(ShortestPathFinder):
                     return {
                         "dynamic_path": dynamic_path,
                         "success": False,
-                        "remain_quantities": None,
-                        "destroyed": attacked_map,
+                        "remain_quantities": [0],
+                        "destroyed": destroyed_list,
                         "bombed": False
                     }
 

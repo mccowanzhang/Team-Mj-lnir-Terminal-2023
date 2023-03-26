@@ -14,8 +14,9 @@ class CornerAttack(Strategy):
         self.l_navigation_wall_locations =[[5,13],[6,12],[7,11],[8,10],[9,9],[10,8],[11,7],[12,6],[13,5]]
         self.r_navigation_wall_locations =[[22,13],[21,12],[20,11],[19,10],[18,9],[17,8],[16,7],[15,6],[14,5]]
         self.upgraded_support_locations = [[13,10],[14,10],[13,9],[14,9]]
-        self.l_extra_turret_locations = [[2,11],[3,12],[7,12]]
-        self.r_extra_turret_locations = [[25,11],[24,12],[20,12]]
+        self.l_extra_turret_locations = [[2,11],[2,13],[7,12],[8,11]]
+        self.c_extra_turret_locations = [[12,5],[15,5],[13,4],[14,4]]
+        self.r_extra_turret_locations = [[25,11],[24,13],[20,12],[19,11]]
         self.extra_extra_support_locations = [[11,10],[12,10],[11,9],[12,9],[15,10],[16,10],[15,9],[16,9],[13,8],[14,8],[13,7],[14,7]]
 
         # mobile placements
@@ -23,10 +24,6 @@ class CornerAttack(Strategy):
         self.r_one_chamber_locations = [ [26,12]]
         self.l_three_chamber_locations = [[4,9]]
         self.r_three_chamber_locations = [[23,9]]
-        self.r_attack_demolisher_locations = [21,7]
-        self.r_attack_scout_location = [11,2]
-        self.l_attack_demolisher_locations = [6,7]
-        self.l_attack_scout_location = [16,2]
         self.attack_locations = [[6,7],[7,6],[8,5],[9,4],[10,3],[11,2],[12,1],[13,0],[14,0],[15,1],[16,2],[17,3],[18,4],[19,5],[20,6],[21,7]]
 
         # global variables

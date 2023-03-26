@@ -79,7 +79,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.strategy = self.decide_strategy(game_state)
             self.strategy.opener(game_state)
         else:
-            self.strategy.play_turn(game_state)
+            self.strategy.play_turn(game_state, self.scored_on_locations)
 
         game_state.submit_turn()
 
@@ -93,16 +93,18 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         choose rock-paper-scissors
         """
-        seed = random.randrange(maxsize)
-        random.seed(seed)
-        if seed % 2 == 1:
-            return strategies.CornerAttack(self.config)
-        else:
+        centre_defense = 0
+        corner_defense = 0
+        for tile in tiles:
+            if (tile.y >= tile.x + 1 and tile.y + tile.x <= 26) or (tile.x + tile.y >= 28 and tile.y <= tile.x + 1):
+                corner_defense += tile.enemy_coverage
+            else:
+                centre_defense += tile.enemy_coverage
+        
+        if corner_defense >= centre_defense:
             return strategies.CentreAttack(self.config)
-            
-    
-
-
+        else:
+            return strategies.CornerAttack(self.config)
 
     def starter_strategy(self, game_state):
         """
