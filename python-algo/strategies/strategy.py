@@ -50,7 +50,7 @@ class Strategy():
         # TO REPLACE analyze if we can send a strong enough attack 
         # and what number of each unit
         total_mp = math.floor(game_state.get_resource(game_state.MP))
-        attack_combinations = [(num_scouts, num_demolishers) 
+        attack_combinations = [[num_scouts, num_demolishers] 
                                for num_scouts in range(total_mp - 1) 
                                for num_demolishers in range(total_mp - 1) 
                                if num_scouts + num_demolishers * 3 <= total_mp - 2]
