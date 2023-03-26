@@ -46,11 +46,7 @@ class Strategy():
             paths, _ = path_finder.calc_static_shortest_path(spawn)
             list_of_paths.append(paths)
 
-<<<<<<< Updated upstream
-        self.reachable_map = [list(filter(None, x)) for x in list((itertools.zip_longest(*list_of_paths, fillvalue=[])))]
-=======
         self.reachable_map = [list(t) for t in list((itertools.zip_longest(*list_of_paths, fillvalue=None)))]
->>>>>>> Stashed changes
 
     def calc_delays(self):
         left_tower_kill = False
