@@ -1,6 +1,8 @@
 import unittest
 import json
 from .game_state import GameState
+from .game_map import GameMap
+from .tile import Tile
 
 with open("../game-configs.json", 'r') as f:
     config = json.load(f)
@@ -11,6 +13,19 @@ class BasicTests(unittest.TestCase):
         turn_0 = """{"p2Units":[[],[],[],[],[],[],[]],"turnInfo":[0,0,-1],"p1Stats":[30.0,25.0,5.0,0],"p1Units":[[],[],[],[],[],[],[]],"p2Stats":[30.0,25.0,5.0,0],"events":{"selfDestruct":[],"breach":[],"damage":[],"shield":[],"move":[],"spawn":[],"death":[],"attack":[],"melee":[]}}"""
         
         state = GameState(config, turn_0)
+        state.suppress_warnings(True)
+        return state
+
+    def make_complicate_map(self):
+        tiles = []
+        fmap = GameMap(config)
+        EDGES = fmap.get_edges()
+        for x in range(28):
+            for y in range(28):
+                tiles.append(Tile(x, y, [x, y] in EDGES[0] or [x, y] in EDGES[1] or
+                                          [x, y] in EDGES[2] or [x, y] in EDGES[3], fmap.in_arena_bounds([x, y])))
+        turn = """{"p2Units":[[],[],[[25,14,75.0,"1"],[21,18,75.0,"2"],[18,16,75.0,"3"],[13,17,75.0,"4"],[7,16,75.0,"5"]],[],[],[],[],[]],"turnInfo":[0,4,-1,115],"p1Stats":[30.0,5.0,11.5,225],"p1Units":[[[0,13,120.0,"15"],[27,13,120.0,"17"],[3,11,12.0,"18"],[4,11,12.0,"19"],[4,10,12.0,"20"],[6,11,12.0,"21"],[6,10,12.0,"22"],[6,9,12.0,"23"],[6,8,12.0,"24"],[24,11,12.0,"25"],[23,11,12.0,"26"],[23,10,12.0,"27"],[21,11,12.0,"28"],[21,10,12.0,"29"],[21,9,12.0,"30"],[21,8,12.0,"31"],[1,13,12.0,"32"],[2,13,12.0,"33"],[3,13,12.0,"34"],[4,13,12.0,"35"],[5,13,12.0,"36"],[6,13,12.0,"37"],[7,13,12.0,"38"],[8,13,12.0,"39"],[9,13,12.0,"40"],[10,13,12.0,"41"],[26,13,12.0,"43"],[25,13,12.0,"44"],[24,13,12.0,"45"],[23,13,12.0,"46"],[22,13,12.0,"47"],[21,13,12.0,"48"],[20,13,12.0,"49"],[19,13,12.0,"50"],[18,13,12.0,"51"],[11,13,120.0,"53"],[16,13,120.0,"54"],[17,13,12.0,"55"]],[],[[22,12,75.0,"11"],[10,12,75.0,"12"],[17,12,75.0,"13"],[5,12,75.0,"58"]],[],[],[],[],[[0,13,0.0,"15"],[27,13,0.0,"17"],[11,13,0.0,"53"],[16,13,0.0,"54"],[5,12,0.0,"58"]]],"p2Stats":[30.0,30.0,15.3,1924],"events":{"selfDestruct":[],"breach":[],"damage":[],"shield":[],"move":[],"spawn":[],"death":[],"attack":[],"melee":[]}}"""
+        state = GameState(config, turn, tiles=tiles)
         state.suppress_warnings(True)
         return state
 

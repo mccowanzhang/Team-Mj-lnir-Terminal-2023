@@ -3,7 +3,6 @@ from .game_state import GameState
 from .unit import GameUnit
 from .util import debug_write
 from typing import List, Tuple, Dict
-from math import ceil
 import queue, sys
 
 # constants
@@ -33,7 +32,6 @@ class CustomPathFinder(ShortestPathFinder):
         self.initialized = True
         # flags for downstream querying tasks
         self.static_quadrants = []
-        self.dynamic_ready = False
         # important data structures
         self.game_state = game_state
         self.game_map = self.game_state.game_map
@@ -381,12 +379,8 @@ class CustomPathFinder(ShortestPathFinder):
             if enemy_attacked and enemy_attacked not in attacked_map:
                 attacked_map[enemy_attacked] = enemy_attacked.health
             attacked_health = attacked_map.get(enemy_attacked, 0)
-
             # find attacker
             enemy_attackers: List[GameUnit] = self.game_state.get_attackers(curr_loc, player_index)
-            if enemy_attackers:
-                debug_write("attacker:", enemy_attackers)
-
             for _ in range(unit_speed):
                 # this is calculated before attacking/attacked
                 total_damage = sum([unit_damage[i] * quantities[i] for i in range(len(unit_damage))])
@@ -395,15 +389,15 @@ class CustomPathFinder(ShortestPathFinder):
                     damage = attacker.damage_i
                     if not len(unit_health):
                         continue
-                    attacked_health = unit_health.pop()
-                    if damage >= attacked_health:
+                    u_health = unit_health.pop()
+                    if damage >= u_health:
                         # used to determine which unit type is eliminated
                         if len(unit_health) <= old_quantities[min_health_idx]:
                             quantities[min_health_idx] -= 1
                         else:
                             quantities[1 - min_health_idx] -= 1
                     else:
-                        unit_health.append(attacked_health - damage)
+                        unit_health.append(u_health - damage)
                 # simulate attacking some enemies
                 while total_damage > 0 and enemy_attacked:
                     reduced_health = min(attacked_health, total_damage)
@@ -421,13 +415,18 @@ class CustomPathFinder(ShortestPathFinder):
                         self.game_map[rx, ry] = []
                         # and record this point for later restoration
                         new_destroyed_list.append(enemy_attacked)
+                        attacked_map[enemy_attacked] = 0
                         enemy_attacked = self.game_state.get_target(game_units[0])
                         if enemy_attacked and enemy_attacked not in attacked_map:
                             attacked_map[enemy_attacked] = enemy_attacked.health
                         attacked_health = attacked_map.get(enemy_attacked, 0)
-                    attacked_map[enemy_attacked] = attacked_health
-                    
+                    else:
+                        attacked_map[enemy_attacked] = attacked_health
+                
                 if not len(unit_health): # failed
+                    # restoration phase
+                    self._restore_destroyed(destroyed_list)
+                    game_units[0].x, game_units[0].y = old_loc
                     return {
                         "dynamic_path": dynamic_path,
                         "success": False,
@@ -475,10 +474,7 @@ class CustomPathFinder(ShortestPathFinder):
                             destroyed_list.append(enemy_attacked)
 
         # restoration phase
-        for unit in destroyed_list:
-            assert unit.stationary
-            self.node_map[unit.x][unit.y].blocked = True
-            self.game_map[unit.x, unit.y] = [unit]
+        self._restore_destroyed(destroyed_list)
         game_units[0].x, game_units[0].y = old_loc
 
         return {
@@ -534,3 +530,9 @@ class CustomPathFinder(ShortestPathFinder):
                         current.put(neighbor)
 
         self.static_quadrants.append(tmp_quadrant)
+    
+    def _restore_destroyed(self, destroyed_list: List[GameUnit]):
+        for unit in destroyed_list:
+            assert unit.stationary
+            self.node_map[unit.x][unit.y].blocked = True
+            self.game_map[unit.x, unit.y] = [unit]
