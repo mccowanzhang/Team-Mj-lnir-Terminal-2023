@@ -44,8 +44,13 @@ class Strategy():
                 reinforce_side = self.CENTRE
             else:
                 reinforce_side = self.RIGHT
-
-        self.reactive_defense(game_state)
+            self.reactive_defense(game_state, reinforce_side)
+        else:
+            self.build_up_base(game_state)  
+        defense_turn = game_state.get_resource(game_state.MP, 1) > 10
+        if defense_turn:
+            self.bombs(game_state, self.RIGHT)
+            self.bombs(game_state, self.LEFT)
 
         # TO REPLACE analyze if we can send a strong enough attack 
         # and what number of each unit
@@ -63,11 +68,15 @@ class Strategy():
                 units = [gamelib.GameUnit(SCOUT, self.config, 0, 5, location[0], location[1]), 
                         gamelib.GameUnit(DEMOLISHER, self.config, 0, 5, location[0], location[1])]
                 attack = path_finder.calc_dynamic_shortest_path(location, units, combo)
+                gamelib.debug_write("({},{}) scouts: {}, demolishers: {}, damage: {}".format(location[0], location[1], combo[0],combo[1], sum(attack["remain_quantities"])))
                 if sum(attack["remain_quantities"]) > best_attack["damage"]:
                     best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": sum(attack["remain_quantities"])}
         
 
         attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
+
+        # best_attack = {"num_scouts":2, "num_demolisher": 2, "location": [6,7], "damage": 0}
+        # if total_mp > 10:
         if attack_turn:
             self.reactive_offense(game_state, best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"])
 
@@ -80,14 +89,102 @@ class Strategy():
         interceptor_locations = [[3,10],[24,10],[8,5],[19,5]]
         game_state.attempt_spawn(INTERCEPTOR, interceptor_locations)
                         
-    def reactive_defense(self, game_state):
+    def reactive_defense(self, game_state, reinforce_side):
         """
         plays defenses
         """
-        defense_turn = game_state.get_resource(game_state.MP, 1) > 10
-        if defense_turn:
-            self.bombs(game_state, self.RIGHT)
-            self.bombs(game_state, self.LEFT)
+        # build up base
+        if reinforce_side == self.LEFT:
+            for location in self.l_turret_locations:
+                game_state.attempt_spawn(TURRET, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.l_upgraded_wall_locations:
+                game_state.attempt_spawn(WALL, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.l_defense_wall_locations:
+                game_state.attempt_spawn(WALL, location)
+                game_state.attempt_upgrade(location)
+
+            game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
+            game_state.attempt_spawn(WALL, self.l_navigation_wall_locations)
+            game_state.attempt_upgrade(self.l_chamber_wall_locations)
+
+                    # build up supports
+            for location in self.upgraded_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.l_extra_turret_locations:
+                game_state.attempt_spawn(TURRET, location)
+                game_state.attempt_upgrade(location)
+
+            game_state.attempt_upgrade(self.l_navigation_wall_locations)
+
+            for location in self.extra_extra_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
+        elif reinforce_side == self.CENTRE:
+            for location in self.c_turret_locations:
+                game_state.attempt_spawn(TURRET, location)
+                game_state.attempt_upgrade(location)
+
+            game_state.attempt_spawn(WALL, self.r_chamber_wall_locations)
+            game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
+            game_state.attempt_spawn(WALL, self.r_navigation_wall_locations)
+            game_state.attempt_spawn(WALL, self.l_navigation_wall_locations)
+            game_state.attempt_upgrade(self.r_chamber_wall_locations)
+            game_state.attempt_upgrade(self.l_chamber_wall_locations)
+
+
+                    # build up supports
+            for location in self.upgraded_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.c_extra_turret_locations:
+                game_state.attempt_spawn(TURRET, location)
+                game_state.attempt_upgrade(location)
+
+            game_state.attempt_upgrade(self.l_navigation_wall_locations)
+            game_state.attempt_upgrade(self.r_navigation_wall_locations)
+
+            for location in self.extra_extra_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
+        else:
+            for location in self.r_turret_locations:
+                game_state.attempt_spawn(TURRET, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.r_upgraded_wall_locations:
+                game_state.attempt_spawn(WALL, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.r_defense_wall_locations:
+                game_state.attempt_spawn(WALL, location)
+                game_state.attempt_upgrade(location)
+
+            game_state.attempt_spawn(WALL, self.r_chamber_wall_locations)
+            game_state.attempt_spawn(WALL, self.r_navigation_wall_locations)
+            game_state.attempt_upgrade(self.r_chamber_wall_locations)
+
+                    # build up supports
+            for location in self.upgraded_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
+
+            for location in self.r_extra_turret_locations:
+                game_state.attempt_spawn(TURRET, location)
+                game_state.attempt_upgrade(location)
+
+            game_state.attempt_upgrade(self.r_navigation_wall_locations)
+
+            for location in self.extra_extra_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
+        
 
     def reactive_offense(self, game_state, num_scouts, num_demolishers, location=[6,7]):
         """
@@ -106,11 +203,20 @@ class Strategy():
             game_state.attempt_spawn(TURRET, l)
             game_state.attempt_spawn(TURRET, c)
             game_state.attempt_spawn(TURRET, r)
+            game_state.attempt_upgrade(l)
+            game_state.attempt_upgrade(c)
+            game_state.attempt_upgrade(r)
 
         for l, r in zip(self.l_upgraded_wall_locations, self.r_upgraded_wall_locations):
             game_state.attempt_spawn(WALL, l)
             game_state.attempt_upgrade(l)
             game_state.attempt_spawn(WALL, r)
+            game_state.attempt_upgrade(r)
+
+        for l, r in zip(self.l_defense_wall_locations, self.r_defense_wall_locations):
+            game_state.attempt_spawn(WALL, l)
+            game_state.attempt_spawn(WALL, r)
+            game_state.attempt_upgrade(l)
             game_state.attempt_upgrade(r)
 
         game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
@@ -124,14 +230,13 @@ class Strategy():
             game_state.attempt_upgrade(location)
 
         # fortify defenses 
-        for l, r in zip(self.l_turret_locations, self.r_turret_locations):
-            game_state.attempt_upgrade(l)
-            game_state.attempt_upgrade(r)
-
         for l, c, r in zip(self.l_extra_turret_locations, self.c_extra_turret_locations, self.r_extra_turret_locations):
             game_state.attempt_spawn(TURRET, l)
             game_state.attempt_spawn(TURRET, c)
             game_state.attempt_spawn(TURRET, r)
+            game_state.attempt_upgrade(l)
+            game_state.attempt_upgrade(c)
+            game_state.attempt_upgrade(r)
 
         for l, r in zip(self.l_chamber_wall_locations, self.r_chamber_wall_locations):
             game_state.attempt_upgrade(l)
@@ -139,11 +244,6 @@ class Strategy():
 
         for l, r in zip(self.l_navigation_wall_locations, self.r_navigation_wall_locations):
             game_state.attempt_upgrade(l)
-            game_state.attempt_upgrade(r)
-
-        for l, c, r in zip(self.l_extra_turret_locations, self.c_extra_turret_locations, self.r_extra_turret_locations):
-            game_state.attempt_upgrade(l)
-            game_state.attempt_upgrade(c)
             game_state.attempt_upgrade(r)
 
         for location in self.extra_extra_support_locations:

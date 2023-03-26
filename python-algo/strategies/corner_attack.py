@@ -11,6 +11,10 @@ class CornerAttack(Strategy):
         self.r_upgraded_wall_locations = [[22,13], [27,13]]
         self.l_chamber_wall_locations = [[1,13],[2,12],[3,12],[4,11],[5,10],[6,9],[6,8]]
         self.r_chamber_wall_locations = [[26,13],[25,12],[24,12],[23,11],[22,10],[21,9],[21,8]]
+
+        self.l_defense_wall_locations =[[5,13],[0,13],[1,13],[2,13],[3,12]]
+        self.r_defense_wall_locations =[[22,13],[27,13],[26,13],[25,13],[24,12]]
+
         self.l_navigation_wall_locations =[[5,13],[6,12],[7,11],[8,10],[9,9],[10,8],[11,7],[12,6],[13,5]]
         self.r_navigation_wall_locations =[[22,13],[21,12],[20,11],[19,10],[18,9],[17,8],[16,7],[15,6],[14,5]]
         self.upgraded_support_locations = [[13,10],[14,10],[13,9],[14,9]]
