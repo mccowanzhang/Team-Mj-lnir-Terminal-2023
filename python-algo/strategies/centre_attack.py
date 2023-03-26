@@ -25,7 +25,7 @@ class CentreAttack(Strategy):
         self.l_extra_turret_locations = [[3,12],[10,11],[4,12],[6,12],[11,11],[1,12]]
         self.c_extra_turret_locations = [[10,13],[17,13],[11,13],[16,13],[10,12],[17,12]]
         self.r_extra_turret_locations = [[24,12],[17,11],[23,12],[21,12],[16,11],[26,12]]
-        self.extra_extra_support_locations = [[8,10],[18,10],[9,10],[19,10],[8,9],[18,9],[9,9],[19,9],[8,8],[18,8],[9,8],[19,8],[8,7],[18,7],[9,7],[19,7],[8,6],[18,6],[9,6],[19,6]]
+        self.extra_extra_support_locations = [[8,10],[18,10],[9,10],[19,10],[8,9],[18,9],[9,9],[19,9],[8,8],[18,8],[9,8],[19,8],[8,7],[18,7],[9,7],[19,7],[18,6],[9,6]]
 
         # mobile placements
         self.l_one_chamber_locations = [[3,10]]
