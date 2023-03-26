@@ -58,7 +58,9 @@ class AlgoStrategy(gamelib.AlgoCore):
         SP = 0
 
         # This is a good place to do initial setup
-        self.strategy = strategies.Strategy(config)
+
+        self.strategy = strategies.Strategy(config, EDGES, tiles)
+
         self.scored_on_locations = []
 
     def on_turn(self, turn_state):
@@ -89,6 +91,7 @@ class AlgoStrategy(gamelib.AlgoCore):
     strategy and can safely be replaced for your custom algo.
     """
 
+
     def decide_strategy(self, game_state):
         """
         choose rock-paper-scissors
@@ -102,9 +105,9 @@ class AlgoStrategy(gamelib.AlgoCore):
                 centre_defense += tile.enemy_coverage
         
         if corner_defense >= centre_defense:
-            return strategies.CentreAttack(self.config)
+            return strategies.CentreAttack(self.config, EDGES, tiles)
         else:
-            return strategies.CornerAttack(self.config)
+            return strategies.CornerAttack(self.config, EDGES, tiles)
 
     def starter_strategy(self, game_state):
         """
