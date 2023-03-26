@@ -180,7 +180,7 @@ class GameState:
                             for x in surroundings:
                                 self.tiles[x].add_shield(abs_location, self.tiles[abs_location].unit.shieldPerUnit)
 
-                        self.warn("Upgraded " + str(unit.unit_type) + " at: " + str(abs_location))
+                        # self.warn("Upgraded " + str(unit.unit_type) + " at: " + str(abs_location))
 
                 else:
                     unit = GameUnit(unit_type, self.config, player_number, hp, x, y)
@@ -190,7 +190,7 @@ class GameState:
                         # Update unit health if not new
                         if self.tiles[abs_location].unit:
                             self.tiles[abs_location].unit.health = unit.health
-                            self.warn("Updated " + str(unit.unit_type) + " health at: " + str(abs_location))
+                            # self.warn("Updated " + str(unit.unit_type) + " health at: " + str(abs_location))
 
                         # place new units
                         else:
@@ -203,15 +203,15 @@ class GameState:
                                         self.tiles[x].update_friendly_coverage(unit.damage_i)
                                     else:
                                         self.tiles[x].update_enemy_coverage(unit.damage_i)
-                                self.warn("Firepower Updated: " + str(unit.damage_i) + " at " + str(surroundings) +
-                                          " \nFrom new turret: " + str(abs_location))
-                                self.warn("Firepower at " + str(surroundings[0]) + ": " + str(self.tiles[surroundings[0]].get_enemy_coverage()))
+                                # self.warn("Firepower Updated: " + str(unit.damage_i) + " at " + str(surroundings) +
+                                #          " \nFrom new turret: " + str(abs_location))
+                                # self.warn("Firepower at " + str(surroundings[0]) + ": " + str(self.tiles[surroundings[0]].get_enemy_coverage()))
 
                             elif unit.unit_type == "EF":
                                 for x in surroundings:
                                     self.tiles[x].add_shield(abs_location, unit.shieldPerUnit)
-                                self.warn("Shield Updated: " + str(unit.shieldPerUnit) + " at " + str(surroundings) +
-                                            " \nFrom new turret: " + str(abs_location))
+                                # self.warn("Shield Updated: " + str(unit.shieldPerUnit) + " at " + str(surroundings) +
+                                #            " \nFrom new turret: " + str(abs_location))
 
                         self.tiles[abs_location].updated = True
 
@@ -230,7 +230,7 @@ class GameState:
                         surroundings = x.surrounding_locations_abs(x.unit.shieldRange)
                         for location in surroundings:
                             self.tiles[location].remove_shield(x.get_location_abs())
-                    self.warn("Unit Removed at " + str(abs_location))
+                    # self.warn("Unit Removed at " + str(abs_location))
                     x.remove_unit()
 
     def __resource_required(self, unit_type):
