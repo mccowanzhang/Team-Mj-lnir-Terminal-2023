@@ -46,29 +46,45 @@ class Strategy():
             paths, _ = path_finder.calc_static_shortest_path(spawn)
             list_of_paths.append(paths)
 
+<<<<<<< Updated upstream
         self.reachable_map = [list(filter(None, x)) for x in list((itertools.zip_longest(*list_of_paths, fillvalue=[])))]
+=======
+        self.reachable_map = [list(t) for t in list((itertools.zip_longest(*list_of_paths, fillvalue=None)))]
+>>>>>>> Stashed changes
 
     def calc_delays(self):
         left_tower_kill = False
         right_tower_kill = False
 
         target_step = 1
-        new_list = self.reachable_map.copy()
-        while target_step < 6 and len(new_list[target_step * 4 - 1]) > 0:
+        new_list = list(self.reachable_map.copy())
+        gamelib.debug_write("total " + str(len(new_list[0])))
+        while target_step < 6 and target_step * 4 - 1 < len(new_list) and len(new_list[target_step * 4 - 1]) > 0:
             sub_list = new_list[target_step * 4 - 1]
-            for location in range(len(sub_list)):
+            location = 0
+            slist_len = len(sub_list)
+            while location < slist_len:
                 kill = False
-                if sub_list[location][1] <= 18:
-                    if sub_list[location[0]] <= 11:
+                if not sub_list[location]:
+                    kill = True
+                elif sub_list[location][1] <= 18:
+                    if sub_list[location][0] <= 11:
                         left_tower_kill = True
                         kill = True
-                    if sub_list[location[1]] >= 16:
+                    if sub_list[location][1] >= 16:
                         right_tower_kill = True
                         kill = True
 
                 if kill:
                     for s_lists in new_list:
-                        s_lists.pop(location)
+                        if location < len(s_lists):
+                            s_lists.pop(location)
+                            gamelib.debug_write("removed 1 path")
+
+                    location -= 1
+                    slist_len -= 1
+                location += 1
+
             target_step += 2
 
         return target_step, left_tower_kill, right_tower_kill
