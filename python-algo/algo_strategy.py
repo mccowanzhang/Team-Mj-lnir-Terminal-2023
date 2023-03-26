@@ -79,7 +79,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.strategy = self.decide_strategy(game_state)
             self.strategy.opener(game_state)
         else:
-            self.strategy.play_turn(game_state, self.scored_on_locations)
+            self.strategy.play_turn(game_state, self.scored_on_locations, tiles)
 
         game_state.submit_turn()
 

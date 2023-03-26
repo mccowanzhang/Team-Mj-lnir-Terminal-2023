@@ -30,7 +30,7 @@ class Strategy():
         MP = 1
         SP = 0
 
-    def play_turn(self, game_state: gamelib.GameState, scored_on_locations):
+    def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles):
         """
         decision making
         """
@@ -78,8 +78,17 @@ class Strategy():
         # gamelib.debug_write("({},{}) scouts: {}, demolishers: {}, damage: {}".format(best_attack["location"][0], best_attack["location"][1], best_attack["num_scouts"],best_attack["num_demolisher"], best_attack["damage"]))
         # attack_turn = best_attack["score"] > game_state.turn_number // 10 + 5 or best_attack["ends_game"]
 
-        best_attack = {"num_scouts":2, "num_demolisher": 2, "location": [6,7], "damage": 0}
-        if total_mp > 10:
+        left_defense = 0
+        right_defense = 0
+        for tile in tiles:
+            if tile.x <= 13:
+                left_defense += tile.enemy_coverage
+            else:
+                right_defense += tile.enemy_coverage
+        num_scouts = 2
+        num_demolishers = 2 + game_state.turn_number // 20
+        best_attack = {"num_scouts": num_scouts, "num_demolisher": num_demolishers, "location": [11,2] if left_defense >= right_defense else [16,2], "damage": 0}
+        if total_mp > num_scouts + num_demolishers * 3 + 2:
         # if attack_turn:
             # gamelib.debug_write("num scouts: {} num demolish: {} location: {} score {} ends game {}".format(best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"], best_attack["score"], best_attack["ends_game"]))
             self.reactive_offense(game_state, best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"])
