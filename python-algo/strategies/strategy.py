@@ -70,7 +70,7 @@ class Strategy():
                 attack = path_finder.calc_dynamic_shortest_path(location, units, combo)
                 if sum(attack["remain_quantities"]) > best_attack["damage"]:
                     best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": sum(attack["remain_quantities"])}
-                    gamelib.debug_write("path: {} success: {} remain_quantities: {}, destroyed: {}, bombed: {}".format(attack["path"], attack["success"], attack["remain_quantities"], attack["destroyed"], attack["bombed"]))
+                    gamelib.debug_write("path: {} success: {} remain_quantities: {}, destroyed: {}, bombed: {}".format(attack["dynamic_path"], attack["success"], attack["remain_quantities"], attack["destroyed"], attack["bombed"]))
         
         gamelib.debug_write("({},{}) scouts: {}, demolishers: {}, damage: {}".format(best_attack["location"][0], best_attack["location"][1], best_attack["num_scouts"],best_attack["num_demolisher"], best_attack["damage"]))
         attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
