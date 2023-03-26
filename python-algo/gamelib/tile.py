@@ -4,17 +4,18 @@ from .game_map import GameMap
 
 
 class Tile:
-    def __init__(self, x, y, is_edge=False, is_valid=False):
+    def __init__(self, x, y, map, is_edge=False, is_valid=False):
         self.x = x
         self.y = y
         self.unit = None
         self.enemy_coverage = 0
         self.friendly_coverage = 0
         self.is_edge = is_edge
+        self.is_valid = is_valid
+        self.map = map
         self.friendly_shield = {}
         self.enemy_shield = {}
         self.updated = False
-        self.is_valid = is_valid
 
     def add_unit(self, unit_type):
         self.unit = unit_type
@@ -77,7 +78,7 @@ class Tile:
                 locations.append([self.x + hv_distance, self.y + v_distance])
 
         final_locations = [location for location in locations if
-                           GameMap.in_arena_bounds(location)]
+                           map.in_arena_bounds(location)]
 
         return final_locations
 
