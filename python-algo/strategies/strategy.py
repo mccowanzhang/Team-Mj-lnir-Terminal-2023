@@ -79,6 +79,23 @@ class Strategy():
         decision making
         """
         # analyze map to update strategy 
+        defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
+        if defense_turn:
+            num_bombs = max(1 + game_state.turn_number // 25, 3)
+            if game_state.turn_number > 10:
+                analysis = self.calc_delays()
+                if analysis[1]:
+                    if analysis[0] > 3:
+                        self.deploy_five_chamber(game_state, self.LEFT, num_bombs)
+                    self.deploy_three_chamber(game_state, self.LEFT, num_bombs)
+                if analysis[2]:
+                    if analysis[0] > 3:
+                        self.deploy_five_chamber(game_state, self.RIGHT, num_bombs)
+                    self.deploy_three_chamber(game_state, self.RIGHT, num_bombs)
+            else: 
+                self.deploy_three_chamber(game_state, self.RIGHT, num_bombs)
+                self.deploy_three_chamber(game_state, self.LEFT, num_bombs)
+
         if len(scored_on_locations) > 0:
             x = scored_on_locations[len(scored_on_locations) - 1][0]
             reinforce_side = self.LEFT 
@@ -130,7 +147,7 @@ class Strategy():
             else:
                 right_defense += tile.enemy_coverage
         num_scouts = 2
-        num_demolishers = 2 + game_state.turn_number // 20
+        num_demolishers = 2 + game_state.turn_number // 12
         best_attack = {"num_scouts": num_scouts, "num_demolisher": num_demolishers, "location": [11,2] if left_defense >= right_defense else [16,2], "damage": 0}
         if total_mp > num_scouts + num_demolishers * 3 + 2:
         # if attack_turn:
