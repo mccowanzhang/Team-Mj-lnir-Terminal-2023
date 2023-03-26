@@ -81,7 +81,7 @@ class Strategy():
         best_attack = {"num_scouts":2, "num_demolisher": 2, "location": [6,7], "damage": 0}
         if total_mp > 10:
         # if attack_turn:
-            gamelib.debug_write("num scouts: {} num demolish: {} location: {} score {} ends game {}".format(best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"], best_attack["score"], best_attack["ends_game"]))
+            # gamelib.debug_write("num scouts: {} num demolish: {} location: {} score {} ends game {}".format(best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"], best_attack["score"], best_attack["ends_game"]))
             self.reactive_offense(game_state, best_attack["num_scouts"], best_attack["num_demolisher"], best_attack["location"])
 
         # how we spend struct points
