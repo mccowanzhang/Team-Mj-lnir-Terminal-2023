@@ -3,6 +3,10 @@ from .strategy import Strategy
 class CentreAttack(Strategy):
     def __init__(self, config):
         super().__init__(config)
+        # defense parameters
+        self.DEFEND_LEFT_THRESHOLD = 5
+        self.DEFEND_RIGHT_THRESHOLD = 23
+
         # structure placements
         self.l_turret_locations = [[5,12],[2,12]]
         self.r_turret_locations = [[22,12],[25,12]]
@@ -12,8 +16,8 @@ class CentreAttack(Strategy):
         self.l_chamber_wall_locations = [[3,11],[4,11],[4,10],[5,12],[6,11],[6,10],[6,9],[6,8]]
         self.r_chamber_wall_locations = [[24,11],[23,11],[23,10],[22,12],[21,11],[21,10],[21,9],[21,8]]
 
-        self.l_defense_wall_locations =[[11,13],[10,13],[5,13],[4,13],[6,13],[0,13]]
-        self.r_defense_wall_locations =[[16,13],[17,13],[22,13],[23,13],[21,13],[27,13]]
+        self.l_defense_wall_locations =[[11,13],[10,13],[5,13],[4,13],[6,13],[0,13],[9,13],[8,13],[7,13],[3,13],[2,13],[1,13]]
+        self.r_defense_wall_locations =[[16,13],[17,13],[22,13],[23,13],[21,13],[27,13],[18,13],[19,13],[20,13],[24,13],[25,13],[26,13]]
 
         self.l_navigation_wall_locations =[[0,13],[1,13],[2,13],[3,13],[4,13],[5,13],[6,13],[7,13],[8,13],[9,13],[10,13],[11,13]]
         self.r_navigation_wall_locations =[[27,13],[26,13],[25,13],[24,13],[23,13],[22,13],[21,13],[20,13],[19,13],[18,13],[17,13],[16,13]]

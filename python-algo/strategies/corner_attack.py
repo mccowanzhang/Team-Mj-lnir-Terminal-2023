@@ -3,6 +3,10 @@ from .strategy import Strategy
 class CornerAttack(Strategy):
     def __init__(self, config):
         super().__init__(config)
+        # defense parameters
+        self.DEFEND_LEFT_THRESHOLD = 9
+        self.DEFEND_RIGHT_THRESHOLD = 18
+
         # structure placements
         self.l_turret_locations = [[6,12],[2,12]]
         self.r_turret_locations = [[21,12],[25,12]]
