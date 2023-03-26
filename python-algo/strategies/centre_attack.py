@@ -1,8 +1,8 @@
 from .strategy import Strategy
 
 class CentreAttack(Strategy):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, EDGES, tiles):
+        super().__init__(config, EDGES, tiles)
         # defense parameters
         self.DEFEND_LEFT_THRESHOLD = 5
         self.DEFEND_RIGHT_THRESHOLD = 23

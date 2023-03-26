@@ -1,8 +1,10 @@
+import itertools
+
 import gamelib
 import math
 
 class Strategy():
-    def __init__(self, config):
+    def __init__(self, config, EDGES=None, tiles=None):
         """
         init
         """
@@ -17,9 +19,15 @@ class Strategy():
         self.defend_right = 10
         # direction for attack
         self.attack_direction = 0
+        self.EDGES = EDGES
+        self.tiles = tiles
+        gamelib.debug_write("passed in: " + str(self.EDGES))
+        gamelib.debug_write("strategy: " + str(self.EDGES))
 
         # global variables
-        self.config = config 
+        self.config = config
+        self.path_finder = gamelib.CustomPathFinder(self.config)
+        self.reachable_map = []
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP
         WALL = config["unitInformation"][0]["shorthand"]
         SUPPORT = config["unitInformation"][1]["shorthand"]
@@ -29,6 +37,17 @@ class Strategy():
         INTERCEPTOR = config["unitInformation"][5]["shorthand"]
         MP = 1
         SP = 0
+
+    def static_map(self, game_state, path_finder):
+        list_of_paths = []
+        gamelib.debug_write(self.EDGES)
+        valid_spawns = [[x, y] for [x, y] in (self.EDGES[0] + self.EDGES[1]) if not self.tiles[28 * y + x].unit]
+        for spawn in valid_spawns:
+            paths, _ = path_finder.calc_static_shortest_path(spawn)
+            list_of_paths.append(paths)
+
+        self.reachable_map = [list(filter(None, x)) for x in list((itertools.zip_longest(*list_of_paths, fillvalue=[])))]
+        gamelib.debug_write(self.reachable_map)
 
     def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles):
         """
@@ -57,9 +76,9 @@ class Strategy():
         total_mp = math.floor(game_state.get_resource(game_state.MP))
         # attack_combinations = [[total_mp -2 ,0], [0, (total_mp - 2) // 3], [min(total_mp - (total_mp - 2) // 3,0),(total_mp - 2) // 3]]
         # best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "score": 0, "ends_game": False}
-        # path_finder = gamelib.CustomPathFinder(self.config)
-        # path_finder.initialize_map(game_state)
-        # path_finder.prep_static_shortest_path()
+        self.path_finder.initialize_map(game_state)
+        self.path_finder.prep_static_shortest_path()
+        self.static_map(game_state, self.path_finder)
         # units = [gamelib.GameUnit(SCOUT, self.config, 0, None), 
         #         gamelib.GameUnit(DEMOLISHER, self.config, 0, None)]
         # for combo in attack_combinations:

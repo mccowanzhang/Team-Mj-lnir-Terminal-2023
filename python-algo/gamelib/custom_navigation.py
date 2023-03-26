@@ -43,7 +43,8 @@ class CustomPathFinder(ShortestPathFinder):
         # caching self destruct locations
         self.destruct_map = {i : {} for i in range(4)}
 
-    def prep_static_shortest_path(self, quadrants: List[int] = [0, 1]):
+
+    def prep_static_shortest_path(self, quadrants: List[int] = [0, 1, 2, 3]):
         if not self.initialized:
             debug_write("cannot calculate on an uninitialized pathfinder")
             return 
