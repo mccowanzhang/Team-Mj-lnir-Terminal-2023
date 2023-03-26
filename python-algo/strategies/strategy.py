@@ -58,20 +58,19 @@ class Strategy():
         attack_combinations = [[num_scouts, num_demolishers] 
                                for num_scouts in range(total_mp - 1) 
                                for num_demolishers in range(total_mp - 1) 
-                               if num_scouts + num_demolishers * 3 <= total_mp - 2]
+                               if num_scouts + num_demolishers * 3 <= total_mp - 2 and num_scouts >= 0 and num_demolishers >= 0]
         best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "damage": 0}
         path_finder = gamelib.CustomPathFinder(self.config)
         path_finder.initialize_map(game_state)
         path_finder.prep_static_shortest_path()
         for combo in attack_combinations:
             for location in self.attack_locations:
-                units = [gamelib.GameUnit(SCOUT, self.config, 0, 5, location[0], location[1]), 
-                        gamelib.GameUnit(DEMOLISHER, self.config, 0, 5, location[0], location[1])]
+                units = [gamelib.GameUnit(SCOUT, self.config, 0, None), 
+                        gamelib.GameUnit(DEMOLISHER, self.config, 0, None)]
                 attack = path_finder.calc_dynamic_shortest_path(location, units, combo)
                 gamelib.debug_write("({},{}) scouts: {}, demolishers: {}, damage: {}".format(location[0], location[1], combo[0],combo[1], sum(attack["remain_quantities"])))
                 if sum(attack["remain_quantities"]) > best_attack["damage"]:
                     best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": sum(attack["remain_quantities"])}
-        
 
         attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
 

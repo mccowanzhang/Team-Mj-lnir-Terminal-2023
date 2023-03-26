@@ -57,6 +57,41 @@ def test_custom_navigation_3():
     resp = cpf.calc_dynamic_shortest_path((13, 0), units, [1, 1])
     return resp
 
+def test_self_destruct():
+    gs = bt.make_turn_0_map()
+    for i in range(28):
+        gs.game_map.add_unit('FF', (i, 14), 1)
+
+    config = gs.config
+
+    cpf = CustomPathFinder(config)
+    cpf.initialize_map(gs)
+    cpf.prep_static_shortest_path()
+
+    unit = GameUnit("PI", config, 0, None, x = 14, y = 0)
+    resps = []
+    for loc in cpf.game_map.get_edge_locations(2):
+        resps.append(cpf.calc_dynamic_shortest_path(loc, unit, 1))
+    return resps
+
+def test_six_scouts_bug():
+    gs = bt.make_turn_0_map()
+    gs.game_map.add_unit('DF', (6, 16), 1)
+    gs.game_map.add_unit('DF', (13, 17), 1)
+    gs.game_map.add_unit('DF', (18, 16), 1)
+    gs.game_map.add_unit('DF', (21, 18), 1)
+    gs.game_map.add_unit('DF', (25, 14), 1)
+
+    config = gs.config
+
+    cpf = CustomPathFinder(config)
+    cpf.initialize_map(gs)
+    cpf.prep_static_shortest_path()
+
+    unit = GameUnit("SI", config, 0, None, x = 6, y = 7)
+    resp = cpf.calc_dynamic_shortest_path((6, 7), unit, 5)
+    return resp
+
 def strategy_test():
     gs = bt.make_turn_0_map()
 
