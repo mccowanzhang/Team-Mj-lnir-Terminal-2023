@@ -134,6 +134,11 @@ class CustomPathFinder(ShortestPathFinder):
         # backward BFS from destruct point
         current = queue.Queue()
         tmp_quadrant = 4
+        for nodes in self.node_map:
+            for node in nodes:
+                if tmp_quadrant in node.visited:
+                    del node.visited[tmp_quadrant]
+                    
         self.node_map[destruct_point[0]][destruct_point[1]].dist[tmp_quadrant] = 0
         self.node_map[destruct_point[0]][destruct_point[1]].visited[tmp_quadrant] = True
         current.put(destruct_point)
@@ -147,7 +152,7 @@ class CustomPathFinder(ShortestPathFinder):
 
                 neighbor_node = self.node_map[neighbor[0]][neighbor[1]]
                 if not neighbor_node.visited.get(tmp_quadrant) and not current_node.blocked:
-                    neighbor_node.dist[tmp_quadrant] = current_node.dist[quadrant] + 1
+                    neighbor_node.dist[tmp_quadrant] = current_node.dist[tmp_quadrant] + 1
                     neighbor_node.visited[tmp_quadrant] = True
                     current.put(neighbor)
 
