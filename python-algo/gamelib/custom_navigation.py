@@ -138,7 +138,7 @@ class CustomPathFinder(ShortestPathFinder):
             for node in nodes:
                 if tmp_quadrant in node.visited:
                     del node.visited[tmp_quadrant]
-                    
+
         self.node_map[destruct_point[0]][destruct_point[1]].dist[tmp_quadrant] = 0
         self.node_map[destruct_point[0]][destruct_point[1]].visited[tmp_quadrant] = True
         current.put(destruct_point)
@@ -285,7 +285,8 @@ class CustomPathFinder(ShortestPathFinder):
         start_point: Tuple[int, int], 
         game_units: List[GameUnit], 
         quantities: List[int],
-        quadrant: int = -1):
+        quadrant: int = -1,
+        player_index: int = 0):
         """
         Args:
             - start_point: location of the starting point for the search, should usually on an edge
@@ -294,6 +295,7 @@ class CustomPathFinder(ShortestPathFinder):
             - quantities (List[int] || int): a list of quantities for each game unit in game_units
             - quadrant (Optional[int]): the target edge that we want to reach; can be inferred from 
               start point automatically
+            - player_index (Optional[int]): indicate you want to simulate as your side or enemy side
         Returns:
             - dynamic_path (List[Tuple[int, int]]): the location trajectory from start to a target edge,
               or a self destruction point, or some point where all units got killed
@@ -348,7 +350,6 @@ class CustomPathFinder(ShortestPathFinder):
         dynamic_path = [curr_loc]
 
         shield_list: List[GameUnit] = []
-        enemy_list: List[GameUnit] = []
         attacked_map: Dict[GameUnit, int] = {}
         destroyed_list: List[GameUnit] = []
         for loc in self.game_map:
@@ -358,11 +359,8 @@ class CustomPathFinder(ShortestPathFinder):
             if self.game_state.contains_stationary_unit(loc):
                 loc_unit: GameUnit = self.game_map[loc][0]
                 # finding supports
-                if loc_unit.unit_type == "EF" and loc_unit.player_index == 0:
+                if loc_unit.unit_type == "EF" and loc_unit.player_index == player_index:
                     shield_list.append(loc_unit)
-                # finding turrets
-                elif loc_unit.unit_type == "DF" and loc_unit.player_index == 1:
-                    enemy_list.append(loc_unit)
 
         # safe check that handles cases like (1, 2) == [1, 2]
         while i != len(static_path):
@@ -378,13 +376,14 @@ class CustomPathFinder(ShortestPathFinder):
                 else:
                     new_shield_list.append(shield_unit)
             shield_list = new_shield_list 
-            # find attacker
+            # find attacked
             enemy_attacked: GameUnit = self.game_state.get_target(game_units[0])
             if enemy_attacked and enemy_attacked not in attacked_map:
                 attacked_map[enemy_attacked] = enemy_attacked.health
             attacked_health = attacked_map.get(enemy_attacked, 0)
 
-            enemy_attackers: List[GameUnit] = self.game_state.get_attackers(curr_loc, 0)
+            # find attacker
+            enemy_attackers: List[GameUnit] = self.game_state.get_attackers(curr_loc, player_index)
 
             for _ in range(unit_speed):
                 # this is calculated before attacking/attacked

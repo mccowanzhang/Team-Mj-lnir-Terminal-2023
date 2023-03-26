@@ -5,7 +5,7 @@ from gamelib.unit import GameUnit
 
 bt = BasicTests()
 
-def custom_navigation_test_1():
+def test_custom_navigation_1():
     gs = bt.make_turn_0_map()
     gs.game_map.add_unit("FF", (25, 14), 1)
     gs.game_map.add_unit("FF", (26, 14), 1)
@@ -24,7 +24,7 @@ def custom_navigation_test_1():
     resp = cpf.calc_dynamic_shortest_path((13, 0), unit, 5)
     return resp
 
-def custom_navigation_test_2():
+def test_custom_navigation_2():
     gs = bt.make_turn_0_map()
     # a single turret
     gs.game_map.add_unit("DF", (26, 15), 1)
@@ -39,7 +39,7 @@ def custom_navigation_test_2():
     resp = cpf.calc_dynamic_shortest_path((13, 0), unit, 5)
     return resp
 
-def custom_navigation_test_3():
+def test_custom_navigation_3():
     gs = bt.make_turn_0_map()
     # a single turret
     gs.game_map.add_unit("DF", (26, 15), 1)
