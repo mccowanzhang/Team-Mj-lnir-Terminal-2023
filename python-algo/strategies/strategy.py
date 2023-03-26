@@ -47,7 +47,7 @@ class Strategy():
             self.reactive_defense(game_state, reinforce_side)
         else:
             self.build_up_base(game_state)  
-        defense_turn = game_state.get_resource(game_state.MP, 1) > 10
+        defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
         if defense_turn:
             self.bombs(game_state, self.RIGHT)
             self.bombs(game_state, self.LEFT)
@@ -56,9 +56,9 @@ class Strategy():
         # and what number of each unit
         total_mp = math.floor(game_state.get_resource(game_state.MP))
         attack_combinations = [[num_scouts, num_demolishers] 
-                               for num_scouts in range(total_mp - 1) 
-                               for num_demolishers in range(total_mp - 1) 
-                               if num_scouts + num_demolishers * 3 <= total_mp - 2 and num_scouts >= 0 and num_demolishers >= 0]
+                               for num_scouts in range(total_mp) 
+                               for num_demolishers in range(total_mp) 
+                               if num_scouts + num_demolishers * 3 <= total_mp - 2]
         best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "damage": 0}
         path_finder = gamelib.CustomPathFinder(self.config)
         path_finder.initialize_map(game_state)
@@ -68,10 +68,11 @@ class Strategy():
                 units = [gamelib.GameUnit(SCOUT, self.config, 0, None), 
                         gamelib.GameUnit(DEMOLISHER, self.config, 0, None)]
                 attack = path_finder.calc_dynamic_shortest_path(location, units, combo)
-                gamelib.debug_write("({},{}) scouts: {}, demolishers: {}, damage: {}".format(location[0], location[1], combo[0],combo[1], sum(attack["remain_quantities"])))
                 if sum(attack["remain_quantities"]) > best_attack["damage"]:
                     best_attack = {"num_scouts": combo[0], "num_demolisher": combo[1], "location": location, "damage": sum(attack["remain_quantities"])}
-
+                    gamelib.debug_write("path: {} success: {} remain_quantities: {}, destroyed: {}, bombed: {}".format(attack["path"], attack["success"], attack["remain_quantities"], attack["destroyed"], attack["bombed"]))
+        
+        gamelib.debug_write("({},{}) scouts: {}, demolishers: {}, damage: {}".format(best_attack["location"][0], best_attack["location"][1], best_attack["num_scouts"],best_attack["num_demolisher"], best_attack["damage"]))
         attack_turn = best_attack["damage"] > min(game_state.enemy_health, 5)
 
         # best_attack = {"num_scouts":2, "num_demolisher": 2, "location": [6,7], "damage": 0}
