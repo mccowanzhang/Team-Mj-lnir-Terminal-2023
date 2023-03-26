@@ -445,7 +445,27 @@ class CustomPathFinder(ShortestPathFinder):
             curr_loc = static_path[i]
             dynamic_path.append(curr_loc)
             game_units[0].x, game_units[0].y = curr_loc
-        
+
+        # judge whether it reaches an edge or self-destructed
+        bomb = list(dynamic_path[-1]) not in self.end_points_dict.get(quadrant, [])
+        if bomb:
+            steps = len(dynamic_path) - 1
+            for i, unit in enumerate(game_units):
+                bomb_d = unit.destruct_damage * quantities[i]
+                bomb_s = unit.destruct_min_steps
+                if not bomb_d or bomb_s > steps:
+                    continue
+                bomb_r = unit.destruct_radius
+                # calculating bombing damage
+                possible_loc = self.game_map.get_locations_in_range(dynamic_path[-1], bomb_r)
+                for loc in possible_loc:
+                    if self.game_map[loc] and self.game_map[loc][0].stationary:
+                        enemy_attacked = self.game_map[loc][0]
+                        if enemy_attacked not in attacked_map:
+                            attacked_map[enemy_attacked] = enemy_attacked.health
+                        if attacked_map[enemy_attacked] <= bomb_d and enemy_attacked not in destroyed_list:
+                            destroyed_list.append(enemy_attacked)
+
         # restoration phase
         for unit in destroyed_list:
             assert unit.stationary
@@ -453,8 +473,6 @@ class CustomPathFinder(ShortestPathFinder):
             self.game_map[unit.x, unit.y] = [unit]
         game_units[0].x, game_units[0].y = old_loc
 
-        # judge whether it reaches an edge or self-destructed
-        bomb = list(dynamic_path[-1]) not in self.end_points_dict.get(quadrant, [])
         return {
             "dynamic_path": dynamic_path,
             "success": True,

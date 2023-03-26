@@ -61,6 +61,11 @@ class GameUnit:
         self.shieldPerUnit = type_config.get("shieldPerUnit", 0)
         self.shieldBonusPerY = type_config.get("shieldBonusPerY", 0)
         self.cost = [type_config.get("cost1", 0), type_config.get("cost2", 0)]
+        
+        # added by Star for measuring self destruction
+        self.destruct_radius = type_config.get("selfDestructRange", 0)
+        self.destruct_damage = type_config.get("selfDestructDamageTower", 0)
+        self.destruct_min_steps = type_config.get("selfDestructStepsRequired", 0)
 
 
     def upgrade(self):
