@@ -55,7 +55,6 @@ class Strategy():
 
         target_step = 1
         new_list = list(self.reachable_map.copy())
-        gamelib.debug_write("total " + str(len(new_list[0])))
         while target_step < 6 and target_step * 4 - 1 < len(new_list) and len(new_list[target_step * 4 - 1]) > 0:
             sub_list = new_list[target_step * 4 - 1]
             location = 0
@@ -76,7 +75,6 @@ class Strategy():
                     for s_lists in new_list:
                         if location < len(s_lists):
                             s_lists.pop(location)
-                            gamelib.debug_write("removed 1 path")
 
                     location -= 1
                     slist_len -= 1
