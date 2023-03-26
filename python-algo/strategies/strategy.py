@@ -79,6 +79,10 @@ class Strategy():
         decision making
         """
        # analyze map to update strategy 
+        self.path_finder.initialize_map(game_state)
+        self.path_finder.prep_static_shortest_path()
+        self.static_map(game_state, self.path_finder)
+
         defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
         if defense_turn:
             num_bombs = min(1 + game_state.turn_number // 25, 3)
@@ -115,9 +119,7 @@ class Strategy():
         total_mp = math.floor(game_state.get_resource(game_state.MP))
         # attack_combinations = [[total_mp -2 ,0], [0, (total_mp - 2) // 3], [min(total_mp - (total_mp - 2) // 3,0),(total_mp - 2) // 3]]
         # best_attack = {"num_scouts":0, "num_demolisher": 0, "location": [6,7], "score": 0, "ends_game": False}
-        self.path_finder.initialize_map(game_state)
-        self.path_finder.prep_static_shortest_path()
-        self.static_map(game_state, self.path_finder)
+       
         # units = [gamelib.GameUnit(SCOUT, self.config, 0, None), 
         #         gamelib.GameUnit(DEMOLISHER, self.config, 0, None)]
         # for combo in attack_combinations:
