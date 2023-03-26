@@ -51,7 +51,27 @@ class Strategy():
     def calc_delays(self):
         left_tower_kill = False
         right_tower_kill = False
-        filter(self.reachable_map[4])
+
+        target_step = 1
+        new_list = self.reachable_map.copy()
+        while target_step < 6 and len(new_list[target_step * 4 - 1]) > 0:
+            sub_list = new_list[target_step]
+            for location in range(len(sub_list)):
+                kill = False
+                if location[1] <= 18:
+                    if location[0] <= 11:
+                        left_tower_kill = True
+                        kill = True
+                    if location[1] >= 16:
+                        right_tower_kill = True
+                        kill = True
+
+                if kill:
+                    for s_lists in new_list:
+                        s_lists.pop(location)
+
+        return target_step, left_tower_kill, right_tower_kill
+
 
     def play_turn(self, game_state: gamelib.GameState, scored_on_locations, tiles):
         """
