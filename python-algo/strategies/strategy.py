@@ -101,7 +101,7 @@ class Strategy():
             if used >= average + 2:
                 attacks.append(used)
         if len(attacks) > 2:
-            defense_turn = game_state.get_resource(game_state.MP, 1) >= sum(attacks) // len(attacks)
+            defense_turn = game_state.get_resource(game_state.MP, 1) >= (sum(attacks) // len(attacks)) - 2
         else: 
             defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
 
