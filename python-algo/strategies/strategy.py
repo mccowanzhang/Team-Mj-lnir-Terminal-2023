@@ -38,12 +38,12 @@ class Strategy():
         if len(scored_on_locations) > 0:
             x = scored_on_locations[len(scored_on_locations) - 1][0]
             reinforce_side = self.LEFT 
-            if x < 8:
+            if x < self.DEFEND_LEFT_THRESHOLD:
                 reinforce_side = self.LEFT
-            elif x <= 20:
-                reinforce_side = self.CENTRE
-            else:
+            elif x > self.DEFEND_RIGHT_THRESHOLD:
                 reinforce_side = self.RIGHT
+            else:
+                reinforce_side = self.CENTRE
             self.reactive_defense(game_state, reinforce_side)
         else:
             self.build_up_base(game_state)  
