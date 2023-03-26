@@ -203,6 +203,7 @@ class Strategy():
 
             game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
             game_state.attempt_spawn(WALL, self.l_navigation_wall_locations)
+            game_state.attempt_upgrade(self.l_defense_wall_locations)
             game_state.attempt_upgrade(self.l_chamber_wall_locations)
 
                     # build up supports
@@ -228,6 +229,8 @@ class Strategy():
             game_state.attempt_spawn(WALL, self.l_chamber_wall_locations)
             game_state.attempt_spawn(WALL, self.r_navigation_wall_locations)
             game_state.attempt_spawn(WALL, self.l_navigation_wall_locations)
+            game_state.attempt_upgrade(self.r_defense_wall_locations)
+            game_state.attempt_upgrade(self.l_defense_wall_locations)
             game_state.attempt_upgrade(self.r_chamber_wall_locations)
             game_state.attempt_upgrade(self.l_chamber_wall_locations)
 
@@ -262,6 +265,7 @@ class Strategy():
 
             game_state.attempt_spawn(WALL, self.r_chamber_wall_locations)
             game_state.attempt_spawn(WALL, self.r_navigation_wall_locations)
+            game_state.attempt_upgrade(self.r_defense_wall_locations)
             game_state.attempt_upgrade(self.r_chamber_wall_locations)
 
                     # build up supports
