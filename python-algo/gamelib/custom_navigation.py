@@ -391,6 +391,8 @@ class CustomPathFinder(ShortestPathFinder):
                 # simulate being attacked by enemy
                 for attacker in enemy_attackers:
                     damage = attacker.damage_i
+                    if not len(unit_health):
+                        continue
                     attacked_health = unit_health.pop()
                     if damage >= attacked_health:
                         # used to determine which unit type is eliminated
