@@ -384,6 +384,8 @@ class CustomPathFinder(ShortestPathFinder):
 
             # find attacker
             enemy_attackers: List[GameUnit] = self.game_state.get_attackers(curr_loc, player_index)
+            if enemy_attackers:
+                debug_write("attacker:", enemy_attackers)
 
             for _ in range(unit_speed):
                 # this is calculated before attacking/attacked
