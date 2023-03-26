@@ -68,8 +68,8 @@ class CentreAttack(Strategy):
         else:
             game_state.attempt_spawn(INTERCEPTOR, self.r_one_chamber_locations)
 
-    def bombs(self, game_state, dir):
+    def bombs(self, game_state, dir, num = 1):
         if dir == self.LEFT:
-            game_state.attempt_spawn(INTERCEPTOR, self.l_three_chamber_locations)
+            game_state.attempt_spawn(INTERCEPTOR, self.l_three_chamber_locations, num)
         else:
-            game_state.attempt_spawn(INTERCEPTOR, self.r_three_chamber_locations)
+            game_state.attempt_spawn(INTERCEPTOR, self.r_three_chamber_locations, num)

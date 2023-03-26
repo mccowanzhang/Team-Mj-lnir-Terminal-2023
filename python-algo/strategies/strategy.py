@@ -54,6 +54,12 @@ class Strategy():
         decision making
         """
         # analyze map to update strategy 
+        defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
+        if defense_turn:
+            num_bombs = max(1 + game_state.turn_number // 30, 3)
+            self.bombs(game_state, self.RIGHT, num_bombs)
+            self.bombs(game_state, self.LEFT, num_bombs)
+
         if len(scored_on_locations) > 0:
             x = scored_on_locations[len(scored_on_locations) - 1][0]
             reinforce_side = self.LEFT 
@@ -66,10 +72,7 @@ class Strategy():
             self.reactive_defense(game_state, reinforce_side)
         else:
             self.build_up_base(game_state)  
-        defense_turn = game_state.get_resource(game_state.MP, 1) >= 8
-        if defense_turn:
-            self.bombs(game_state, self.RIGHT)
-            self.bombs(game_state, self.LEFT)
+        
 
         # TO REPLACE analyze if we can send a strong enough attack 
         # and what number of each unit
